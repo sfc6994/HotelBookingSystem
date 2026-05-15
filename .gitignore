@@ -22,3 +22,7 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+/PDC_Assignment1 - Copy/build/
+/PDC_Assignment1 - Copy/nbproject/private/
+/PDC_Assignment2/build/
+/PDC_Assignment2/nbproject/private/
