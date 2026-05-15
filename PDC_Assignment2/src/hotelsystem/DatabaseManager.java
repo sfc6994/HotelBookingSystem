@@ -16,15 +16,18 @@ public final class DatabaseManager {
     private Connection conn;
     private static final String URL = "jdbc:derby:HotelDB_Ebd;create=true"; //url for the DB host
     
+    //Private constructor that establishes connection to database and calls createTable if tables don't exist
     private DatabaseManager(){
        try{
        conn = DriverManager.getConnection(URL);
        createTables();
        }catch(SQLException ex){
-       System.err.println("Database Failed to Connect" + ex.getMessage());
+       System.err.println("Database Failed to Connect: " + ex.getMessage());
        }
     }
     
+    //Prevents multiple threads checking the null check at same time and creating 2 Databases 
+    //Only one thread will enter the statement and create database rest will always just return dbm
     public static synchronized DatabaseManager getDataBaseManagerInstance(){
         if(dbm == null){
             dbm = new DatabaseManager();
@@ -32,15 +35,19 @@ public final class DatabaseManager {
         return dbm;
     }
     
+    //Prevents cloning so only one database is made as per Singleton
     @Override
     public Object clone() throws CloneNotSupportedException{
         throw new CloneNotSupportedException();
     }
     
+    //Returns the active connection of the database for the DAO classes to use
     public Connection getConnection(){
         return this.conn;
     }
     
+    //Checks if the tables have already been created
+    //Returns true if table already exists or false if not
     public boolean checkTableExists(String tableName){
         boolean flag = false;
         try{
@@ -62,6 +69,8 @@ public final class DatabaseManager {
         return flag;
     }
     
+    //Creates the tables for the database if they didn't exist already
+    //Sets primary keys and foreign key relationships between each of the tables
     public void createTables() throws SQLException{
         Statement statement = conn.createStatement();
         
@@ -69,10 +78,10 @@ public final class DatabaseManager {
             statement.executeUpdate("CREATE TABLE ROOMS (ROOMNUMBER INT PRIMARY KEY, ROOMTYPE VARCHAR(20), "
                     + "CAPACITY INT, STATUS VARCHAR(20))");
         }
-        
+        //ROOMNUMBER is foreign key from the ROOMS table
         if(!checkTableExists("BOOKINGS")){
             statement.executeUpdate("CREATE TABLE BOOKINGS (BOOKINGID INT PRIMARY KEY, GUESTNAME VARCHAR(75), "
-                    + "ROOMNUMBER INT, CHECKIN VARCHAR(20), CHECKOUT VARCHAR(20), TOTALPRICE DOUBLE)");
+                    + "ROOMNUMBER INT REFERENCES ROOMS(ROOMNUMBER), CHECKIN VARCHAR(20), CHECKOUT VARCHAR(20), TOTALPRICE DOUBLE)");
         }
         
         if(!checkTableExists("REQUESTS")){
@@ -82,6 +91,7 @@ public final class DatabaseManager {
         statement.close();
     }
     
+    //Shut down the Database when called, prints if successful
     public void shutdownDB(){
         try{
             DriverManager.getConnection("jdbc:derby:;shutdown=true");
