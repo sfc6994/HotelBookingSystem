@@ -5,6 +5,7 @@
 package hotelsystem;
 
 import java.sql.*;
+import java.util.ArrayList;
 /**
  *
  * @author Cameron
@@ -33,5 +34,21 @@ public class BookingDao {
         pstmt.close();
     }
     
+    //Uses bookingID to find the booking in BOOKING table and then returns the Booking object, return null if not found
+    public Booking findBooking(int bookingID) throws SQLException{
+    
+        return null;
+    }
+    
+    //Removes the cancelled booking from the BOOKING table by using the bookingID
+    public void cancelBooking(int bookingID) throws SQLException{
+    
+    }
+    
+    //Returns all Bookings from BOOKINGS table and stores them inside ArrayList as booking objects
+    public ArrayList<Booking> getAllBookings() throws SQLException{
+    
+        return null;
+    }
     
 }
