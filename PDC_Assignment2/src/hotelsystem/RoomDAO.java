@@ -5,6 +5,7 @@
 package hotelsystem;
 
 import java.sql.*;
+import java.util.ArrayList;
 /**
  *
  * @author Cameron
@@ -29,6 +30,23 @@ public class RoomDAO {
         pstmt.setString(4, room.getStatus().name());
         pstmt.executeUpdate();
         pstmt.close();
+    }
+    
+    //Searches the SQL table ROOMS using room number and returns the Room object, returns null if not found
+    public Room findRoom(int roomNumber) throws SQLException{
+    
+        return null;
+    }
+    
+    //Uses room number to find room in ROOMS table and then updates the status of the Room inside the database
+    public void updateRoomStatus(int roomNumber, RoomStatus status) throws SQLException{
+    
+    }
+    
+    //Returns all Rooms from ROOMS table and then returns them into the ArrayList as room objects
+    public ArrayList<Room> getAllRooms() throws SQLException{
+   
+        return null;
     }
     
 }
