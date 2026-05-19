@@ -18,16 +18,23 @@ public class MainFrame extends JFrame {
 
     public MainFrame(HotelSystem hotelSystem) {
         this.hotelSystem = hotelSystem;
-
         setTitle("Hotel System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 200);
+        setSize(400, 250);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(2, 1, 10, 10));
+        setLayout(new BorderLayout());
 
-        JButton adminButton = new JButton("Admin");
-        JButton guestButton = new JButton("Guest");
+        JLabel titleLabel = new JLabel("Hotel System Main Menu", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
 
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10));
+        JButton adminButton = new JButton("Admin Login");
+        JButton guestButton = new JButton("Guest Booking Form");
+        buttonPanel.add(adminButton);
+        buttonPanel.add(guestButton);
+
+        add(titleLabel, BorderLayout.NORTH);
+        add(buttonPanel, BorderLayout.CENTER);
         adminButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -43,7 +50,7 @@ public class MainFrame extends JFrame {
                 }
 
                 if (hotelSystem.verifyPassword(password)) {
-                    new AdminPanel(hotelSystem).setVisible(true);
+                    //new AdminPanel(hotelSystem).setVisible(true);
                 } else {
                     JOptionPane.showMessageDialog(
                             MainFrame.this,
@@ -58,11 +65,9 @@ public class MainFrame extends JFrame {
         guestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new GuestPanel(hotelSystem).setVisible(true);
+                //new GuestPanel(hotelSystem).setVisible(true);
             }
         });
 
-        add(adminButton);
-        add(guestButton);
     }
 }

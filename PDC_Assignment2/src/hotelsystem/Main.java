@@ -4,7 +4,6 @@
  */
 package hotelsystem;
 
-import java.util.Scanner;
 import java.sql.*;
 
 /**
