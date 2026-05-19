@@ -64,7 +64,5 @@ public class MainFrame extends JFrame {
 
         add(adminButton);
         add(guestButton);
-
-        pack();
     }
 }

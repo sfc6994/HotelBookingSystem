@@ -18,40 +18,8 @@ public class Main {
         
         try{
         HotelSystem hotelSystem = new HotelSystem();
-        Scanner scan = new Scanner(System.in);
-        boolean run = true;
-
-        while (run) {
-            System.out.println("Hotel Booking System");
-            System.out.println("Press (1) for Admin | Press (2) for Guest | Press (3) to Exit");
-            //simple main to start everything, try-catch block in case non integer input entered
-            try {
-                int numChoice = Integer.parseInt(scan.nextLine().trim());
-
-                switch (numChoice) {
-                    case 1:
-                        AdminMenu adminMenu = new AdminMenu(hotelSystem);
-                        adminMenu.handleAdminInput();
-                        break;
-                    case 2:
-                        GuestMenu guestMenu = new GuestMenu(hotelSystem);
-                        guestMenu.handleGuestInput();
-                        break;
-                    case 3:
-                        System.out.println("Goodbye");
-                        run = false;
-                        break;
-                    default:
-                        System.out.println("Sorry that is not a Choice, Please Try again with valid input");
-
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input, Please enter either 1,2 or 3");
-            }
-
-        }
-        scan.close();
-        DatabaseManager.getDataBaseManagerInstance().shutdownDB();
+        MainFrame mfe = new MainFrame(hotelSystem);
+        mfe.setVisible(true);
         }catch(SQLException ex){
             System.err.println("Error: " + ex.getMessage());
         }
