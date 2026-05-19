@@ -5,6 +5,7 @@
 package hotelsystem;
 
 import java.sql.*;
+import java.util.ArrayList;
 /**
  *
  * @author Cameron
@@ -32,6 +33,21 @@ public class BookingRequestDAO {
         pstmt.setDouble(7, request.getTotalPrice());
         pstmt.executeUpdate();
         pstmt.close();
+    }
+    
+    //Uses the requestID to find a booking request in the REQUEST table and returns the BookingRequest object, returns null if not found
+    public BookingRequest findRequest(int requestID) throws SQLException{
+        return null;
+    }
+    
+    //Removes the request based on the entered requestID from the REQUESTS table
+    public void deleteRequest(int requestID) throws SQLException{
+    
+    }
+    
+    //Returns all Booking Requests from the REQUESTS table and stores them inside the ArrayList as BookingRequest objects
+    public ArrayList<BookingRequest> getAllRequests() throws SQLException{
+        return null;
     }
     
     
