@@ -15,15 +15,15 @@ import java.sql.*;
  * @author Cameron
  */
 public class HotelSystem {
-
+    
     private Connection conn;
     private RoomDAO roomDAO;
     private BookingDAO bookingDAO;
     private BookingRequestDAO bookingRequestDAO;
-
+    
     private String adminPassword;
     private int idCounter;
-
+    
     public HotelSystem() throws SQLException {
         DatabaseManager dbm = DatabaseManager.getDataBaseManagerInstance();
         this.conn = dbm.getConnection();
@@ -62,18 +62,18 @@ public class HotelSystem {
             roomDAO.addRoom(new Room(105, RoomType.DOUBLE, 2));
             roomDAO.addRoom(new Room(106, RoomType.SUITE, 4));
         }
-
+        
     }
 
     //Check if password is correct. Boolean value to check this
     public boolean verifyPassword(String password) {
         return this.adminPassword.equals(password);
     }
-
+    
     public int getIdCounter() {
         return idCounter;
     }
-
+    
     public void setIdCounter(int count) {
         this.idCounter = count;
     }
@@ -87,7 +87,7 @@ public class HotelSystem {
         LocalDate inDate = LocalDate.parse(checkIn, formatter);
         LocalDate outDate = LocalDate.parse(checkOut, formatter);
         long duration = ChronoUnit.DAYS.between(inDate, outDate);
-
+        
         double price;
         switch (type) {
             case SINGLE:
@@ -112,7 +112,7 @@ public class HotelSystem {
     }
 
     //Simple code to allow admin to change room status whenever needed manually
-    public void updateRoomStatus(int roomNumber, RoomStatus status) throws SQLException{
+    public void updateRoomStatus(int roomNumber, RoomStatus status) throws SQLException {
         Room room = findRoom(roomNumber);
         if (room == null) {
             System.out.println("Error: Room " + roomNumber + " not found.");
@@ -123,16 +123,16 @@ public class HotelSystem {
 
     //checks if roomNumber doesn't exist using findRoom, if it does prints a error message
     //otherwise adds a object to ROOMS table
-    public void addRoom(int roomNumber, RoomType type, int capacity) throws SQLException{
+    public void addRoom(int roomNumber, RoomType type, int capacity) throws SQLException {
         if (findRoom(roomNumber) != null) {
             System.out.println("Error: Room " + roomNumber + " already exists.");
             return;
         }
-        roomDAO.addRoom(new Room(roomNumber,type, capacity));
+        roomDAO.addRoom(new Room(roomNumber, type, capacity));
     }
 
     //Loops through ROOMS database table checking the status and only returns OCCUPIED, AVAILABLE and MAINTENANCE rooms
-    public ArrayList<Room> viewActiveRooms() throws SQLException{
+    public ArrayList<Room> viewActiveRooms() throws SQLException {
         ArrayList<Room> active = new ArrayList<>();
         for (Room r : roomDAO.getAllRooms()) {
             if (r.getStatus() == RoomStatus.OCCUPIED
@@ -145,7 +145,7 @@ public class HotelSystem {
     }
 
     //Loops through ROOMS database table checking the status and only returns only AVAILABLE rooms
-    public ArrayList<Room> availableRooms() throws SQLException{
+    public ArrayList<Room> availableRooms() throws SQLException {
         ArrayList<Room> available = new ArrayList<>();
         for (Room r : roomDAO.getAllRooms()) {
             if (r.getStatus() == RoomStatus.AVAILABLE) {
@@ -156,7 +156,7 @@ public class HotelSystem {
     }
 
     //Loops through ROOMS database table checking the status and only returns DECOMMISSIONED rooms
-    public ArrayList<Room> decommissionedRooms() throws SQLException{
+    public ArrayList<Room> decommissionedRooms() throws SQLException {
         ArrayList<Room> decommissioned = new ArrayList<>();
         for (Room r : roomDAO.getAllRooms()) {
             if (r.getStatus() == RoomStatus.DECOMMISSIONED) {
@@ -167,83 +167,60 @@ public class HotelSystem {
     }
 
     //returns the full BOOKING table
-    public ArrayList<Booking> viewBookings() throws SQLException{
+    public ArrayList<Booking> viewBookings() throws SQLException {
         return bookingDAO.getAllBookings();
     }
 
-    //loops through booking list and uses getBookingID to check if there are any id matches
-    public Booking findBooking(int id) {
-        for (Booking b : bookingList) {
-            if (b.getBookingID() == id) {
-                return b;
-            }
-        }
-        return null;
+    //loops through BOOKING table and uses getBookingID to check if there are any id matches
+    public Booking findBooking(int id) throws SQLException {
+        return bookingDAO.findBooking(id);
     }
 
-    //loops through booknig list and find the bookingId using findBooking
+    //Finds the booking by its ID in BOOKINGS table
     //if not found returns error message 
-    //if found removes it from bookingList and uses getRoomNumber to find room and change the status to AVAILABLE
-    //Then saves the modified bookings and rooms
-    public void cancelBooking(int id) {
+    //if found deletes from BOOKINGS table and then updates the room status back to AVAILABLE in ROOMS table
+    public void cancelBooking(int id) throws SQLException {
         Booking booking = findBooking(id);
         if (booking == null) {
             System.out.println("Error: Booking " + id + " not found.");
             return;
         }
-        bookingList.remove(booking);
-        Room room = findRoom(booking.getRoomNumber());
-        if (room != null) {
-            room.setStatus(RoomStatus.AVAILABLE);
+        bookingDAO.cancelBooking(id);
+        roomDAO.updateRoomStatus(booking.getRoomNumber(), RoomStatus.AVAILABLE);
+        
+    }
+
+    //Finds the booking by its ID in BOOKINGS table
+    //if not found returns error message
+    //if found uses updateRoomStatus to change the booking at the enerted room number to occupied
+    public void checkIn(int id) throws SQLException {
+        Booking booking = findBooking(id);
+        if (booking == null) {
+            System.out.println("Error: Booking " + id + " not found.");
+            return;
         }
-        fileHandler.saveBookings(bookingList);
-        fileHandler.saveRooms(roomList);
+        roomDAO.updateRoomStatus(booking.getRoomNumber(), RoomStatus.OCCUPIED);
     }
 
     //uses findBooking to find the booking
     //if not found returns error message
-    //if found uses getRoomNumber to find the room and sets the status to OCCUPIED
-    //saves the modifed booking and room list
-    public void checkIn(int id) {
+    //if found uses updateRoomStatus to change the booking at the enerted room number to available
+    public void checkOut(int id) throws SQLException {
         Booking booking = findBooking(id);
         if (booking == null) {
             System.out.println("Error: Booking " + id + " not found.");
             return;
         }
-        Room room = findRoom(booking.getRoomNumber());
-        if (room != null) {
-            room.setStatus(RoomStatus.OCCUPIED);
-        }
-        fileHandler.saveBookings(bookingList);
-        fileHandler.saveRooms(roomList);
-    }
-
-    //uses findBooking to find the booking
-    //if not found returns error message
-    //if found uses getRoomNumber to find the room and sets the status to AVAILABLE
-    //saves the modifed booking and room list
-    public void checkOut(int id) {
-        Booking booking = findBooking(id);
-        if (booking == null) {
-            System.out.println("Error: Booking " + id + " not found.");
-            return;
-        }
-        Room room = findRoom(booking.getRoomNumber());
-        if (room != null) {
-            room.setStatus(RoomStatus.AVAILABLE);
-        }
-        fileHandler.saveBookings(bookingList);
-        fileHandler.saveRooms(roomList);
+        roomDAO.updateRoomStatus(booking.getRoomNumber(), RoomStatus.AVAILABLE);
     }
 
     //use findRoom to check if room exists, if not print error and return
     //uses getStatus to check is room status isn't available, if it isnt prints error and returns
     //otherwise it checks the dates enerted to make sure they are correct
-    //then calls calcualtePrice to work out the price
+    //then calls calculatePrice to work out the price
     //creates the new booking object and uses idCounter to give it unique ID and increments the counter
-    //sets the room to occupied and adds the booking it to the booking list
-    //then saves the updated roomList, bookinglist and idcounter via fileHandler
-    public void createBooking(String name, int roomNumber, String checkIn, String checkOut) {
+    //sets the room to occupied in the ROOMS table and adds the booking into the BOOKINGS table
+    public void createBooking(String name, int roomNumber, String checkIn, String checkOut) throws SQLException {
         Room room = findRoom(roomNumber);
         if (room == null) {
             System.out.println("Error: Room " + roomNumber + " not found.");
@@ -262,59 +239,46 @@ public class HotelSystem {
             System.out.println("Error: Check out date must be after Check in date");
             return;
         }
-
+        
         double totalPrice = calculatePrice(checkIn, checkOut, room.getRoomType());
         Booking b = new Booking(idCounter, name, roomNumber, checkIn, checkOut, totalPrice);
         idCounter++;
-        room.setStatus(RoomStatus.OCCUPIED);
-        bookingList.add(b);
-        fileHandler.saveBookings(bookingList);
-        fileHandler.saveRooms(roomList);
-        fileHandler.saveIdCounter(idCounter);
+        
+        bookingDAO.addBooking(b);
+        roomDAO.updateRoomStatus(roomNumber, RoomStatus.OCCUPIED);
     }
 
-    //Returns the whole requestList
-    public ArrayList<BookingRequest> viewRequests() {
-        return requestList;
+    //Returns the whole REQUEST table
+    public ArrayList<BookingRequest> viewRequests() throws SQLException {
+        return bookingRequestDAO.getAllRequests();
     }
 
     //calcualtes the price using the calcualtePrice method to show to guest
-    //create a new booking request object with a unique ID, and a the price
-    //increments the counter and saves it to the fileHandler
-    //Also adds the request to the list and then saves the requestList to the fileHandler
-    public void createBookingRequest(String name, RoomType type, int count, String in, String out) {
+    //create a new booking request object with a unique ID, and the price
+    //increments the counter and adds the booking request to the REQUESTS table
+    public void createBookingRequest(String name, RoomType type, int count, String in, String out) throws SQLException {
         double price = calculatePrice(in, out, type);
         BookingRequest request = new BookingRequest(idCounter, name, type, count, in, out, price);
         idCounter++;
-        requestList.add(request);
-        fileHandler.saveRequests(requestList);
-        fileHandler.saveIdCounter(idCounter);
+        bookingRequestDAO.addBookingRequest(request);
     }
 
-    //Null booking request object created
-    //Loops through the request list using a temporary value br
-    //If the ID passed through is found by br.getRequestID stores the refercne to that bookingrequest in request
+    //Finds the booking request in the REQUESTS table using the id
     //if its not found error message is returned
-    //Null room object created
-    //Loops roomList to check if an AVAILABLE room exists and that its of the right type
+    //Loops the ROOM table to check if an AVAILABLE room exists and that its of the right type
     //If not found error message and returns
-    //If all checks match creates the new booking object with the info parsed into the parameters and a unique counter is added
-    //Increments the counter, sets the status from AVAILABLE to OCCUPIED
-    //Adds it to booking list, removes it from the requests list and save each of the lists and the updated idCounter
-    public void approveRequest(int id) {
-        BookingRequest request = null;
-        for (BookingRequest br : requestList) {
-            if (br.getRequestID() == id) {
-                request = br;
-                break;
-            }
-        }
+    //If found sets status to OCCUPIED
+    //Creates a new booknig with unique id, adds it to the BOOKINGS table, deletes the request from the REQUESTS table
+    public void approveRequest(int id) throws SQLException {
+        
+        BookingRequest request = bookingRequestDAO.findRequest(id);
+        
         if (request == null) {
             System.out.println("Error: Request " + id + " not found.");
             return;
         }
         Room room = null;
-        for (Room r : roomList) {
+        for (Room r : roomDAO.getAllRooms()) {
             if (r.getStatus() == RoomStatus.AVAILABLE && r.getRoomType() == request.getRoomType()) {
                 room = r;
                 break;
@@ -324,31 +288,25 @@ public class HotelSystem {
             System.out.println("Error: No available room of type " + request.getRoomType() + " found.");
             return;
         }
-
+        
         Booking booking = new Booking(idCounter, request.getGuestName(), room.getRoomNumber(),
                 request.getCheckIn(), request.getCheckOut(), request.getTotalPrice());
         idCounter++;
-        room.setStatus(RoomStatus.OCCUPIED);
-        bookingList.add(booking);
-        requestList.remove(request);
-        fileHandler.saveRooms(roomList);
-        fileHandler.saveBookings(bookingList);
-        fileHandler.saveRequests(requestList);
-        fileHandler.saveIdCounter(idCounter);
+        bookingDAO.addBooking(booking);
+        bookingRequestDAO.deleteRequest(id);
+        roomDAO.updateRoomStatus(room.getRoomNumber(), RoomStatus.OCCUPIED);
     }
 
-    //loops the request list and using index based loop to remove while iterating uses getRequestID to compare ID being searched
-    //If doesn't find an ID match returns an error message 
-    //If it does find it it removes the request from the list and then saves the updated list
-    public void deleteRequest(int id) {
-        for (int i = 0; i < requestList.size(); i++) {
-            if (requestList.get(i).getRequestID() == id) {
-                requestList.remove(i);
-                fileHandler.saveRequests(requestList);
-                return;
-            }
+    //Finds the booking request by its id
+    //if its not found returns and prints message
+    //if found deletes the booking request from the REQUESTS table
+    public void deleteRequest(int id) throws SQLException {
+        BookingRequest request = bookingRequestDAO.findRequest(id);
+        if (request == null) {
+            System.out.println("Error: Request " + id + " not found.");
+            return;
         }
-        System.out.println("Error: Request " + id + " not found.");
+        bookingRequestDAO.deleteRequest(id);
     }
-
+    
 }
