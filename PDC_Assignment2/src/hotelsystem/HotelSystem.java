@@ -16,8 +16,6 @@ import java.sql.*;
  */
 public class HotelSystem {
 
-    //create file handler type
-    //private FileHandler fileHandler;
     private Connection conn;
     private RoomDAO roomDAO;
     private BookingDAO bookingDAO;
@@ -26,7 +24,7 @@ public class HotelSystem {
     private String adminPassword;
     private int idCounter;
 
-    public HotelSystem() throws SQLException{
+    public HotelSystem() throws SQLException {
         DatabaseManager dbm = DatabaseManager.getDataBaseManagerInstance();
         this.conn = dbm.getConnection();
         roomDAO = new RoomDAO(dbm.getConnection());
@@ -34,38 +32,37 @@ public class HotelSystem {
         bookingRequestDAO = new BookingRequestDAO(dbm.getConnection());
 
         //Gets the max booking id and max request id from the BOOKINGS and REQUESTS table and stores into variable
-        int bookingNumID =0 ;
+        int bookingNumID = 0;
         int requestNumID = 0;
         ResultSet rs1 = conn.createStatement().executeQuery("SELECT MAX (BOOKINGID) FROM BOOKINGS");
         ResultSet rs2 = conn.createStatement().executeQuery("SELECT MAX (REQUESTID) FROM REQUESTS");
-        if(rs1.next()){
-        bookingNumID = rs1.getInt(1);
+        if (rs1.next()) {
+            bookingNumID = rs1.getInt(1);
         }
-        if(rs2.next()){
-        requestNumID = rs2.getInt(1);
+        if (rs2.next()) {
+            requestNumID = rs2.getInt(1);
         }
-        
+
         //Sets the idCounter to +1 of the highest existing id between the REQUEST and BOOKING tables to prevent duplciate id
-        if(bookingNumID > requestNumID){
+        if (bookingNumID > requestNumID) {
             this.idCounter = bookingNumID + 1;
-        }else{
+        } else {
             this.idCounter = requestNumID + 1;
         }
 
         //password for admin
         this.adminPassword = "Admin123";
-        
+
         //create rooms on startup if the ROOMS database is empty
-        if(roomDAO.getAllRooms().isEmpty())
-        {
+        if (roomDAO.getAllRooms().isEmpty()) {
             roomDAO.addRoom(new Room(101, RoomType.SINGLE, 1));
             roomDAO.addRoom(new Room(102, RoomType.DOUBLE, 2));
-            roomDAO.addRoom(new Room(103, RoomType.SUITE,  4));
+            roomDAO.addRoom(new Room(103, RoomType.SUITE, 4));
             roomDAO.addRoom(new Room(104, RoomType.SINGLE, 1));
             roomDAO.addRoom(new Room(105, RoomType.DOUBLE, 2));
-            roomDAO.addRoom(new Room(106, RoomType.SUITE,  4)); 
+            roomDAO.addRoom(new Room(106, RoomType.SUITE, 4));
         }
-        
+
     }
 
     //Check if password is correct. Boolean value to check this
@@ -109,44 +106,35 @@ public class HotelSystem {
         return duration * price;
     }
 
-    //makes getRoomNumber search for roomNumber entered inside the roomList and returns the object if found otherwise returns null
-    public Room findRoom(int roomNumber) {
-        for (Room r : roomList) {
-            if (r.getRoomNumber() == roomNumber) {
-                return r;
-            }
-        }
-        return null;
+    //makes getRoomNumber search for roomNumber entered inside the ROOMS database and returns the object if found, if not returns null
+    public Room findRoom(int roomNumber) throws SQLException {
+        return roomDAO.findRoom(roomNumber);
     }
-    
+
     //Simple code to allow admin to change room status whenever needed manually
-    public void updateRoomStatus(int roomNumber, RoomStatus status)
-    {
-            Room room = findRoom(roomNumber);
-            if(room == null)
-            {
-                System.out.println("Error: Room " + roomNumber + " not found.");
-                return;
-            }
-            room.setStatus(status);
-            fileHandler.saveRooms(roomList);
+    public void updateRoomStatus(int roomNumber, RoomStatus status) throws SQLException{
+        Room room = findRoom(roomNumber);
+        if (room == null) {
+            System.out.println("Error: Room " + roomNumber + " not found.");
+            return;
+        }
+        roomDAO.updateRoomStatus(roomNumber, status);
     }
 
     //checks if roomNumber doesn't exist using findRoom, if it does prints a error message
-    //otherwise adds a object to roomList and saves it to the txt file via fileHandler
-    public void addRoom(int roomNumber, RoomType type, int capacity) {
+    //otherwise adds a object to ROOMS table
+    public void addRoom(int roomNumber, RoomType type, int capacity) throws SQLException{
         if (findRoom(roomNumber) != null) {
             System.out.println("Error: Room " + roomNumber + " already exists.");
             return;
         }
-        roomList.add(new Room(roomNumber, type, capacity));
-        fileHandler.saveRooms(roomList);
+        roomDAO.addRoom(new Room(roomNumber,type, capacity));
     }
 
-    //Loops through Rooms list checking their status and only returns OCCUPIED, AVAILABLE and MAINTENANCE rooms
-    public ArrayList<Room> viewActiveRooms() {
+    //Loops through ROOMS database table checking the status and only returns OCCUPIED, AVAILABLE and MAINTENANCE rooms
+    public ArrayList<Room> viewActiveRooms() throws SQLException{
         ArrayList<Room> active = new ArrayList<>();
-        for (Room r : roomList) {
+        for (Room r : roomDAO.getAllRooms()) {
             if (r.getStatus() == RoomStatus.OCCUPIED
                     || r.getStatus() == RoomStatus.AVAILABLE
                     || r.getStatus() == RoomStatus.MAINTENANCE) {
@@ -156,10 +144,10 @@ public class HotelSystem {
         return active;
     }
 
-    //Loops through Rooms list checking their status and only returns only AVAILABLE rooms
-    public ArrayList<Room> availableRooms() {
+    //Loops through ROOMS database table checking the status and only returns only AVAILABLE rooms
+    public ArrayList<Room> availableRooms() throws SQLException{
         ArrayList<Room> available = new ArrayList<>();
-        for (Room r : roomList) {
+        for (Room r : roomDAO.getAllRooms()) {
             if (r.getStatus() == RoomStatus.AVAILABLE) {
                 available.add(r);
             }
@@ -167,10 +155,10 @@ public class HotelSystem {
         return available;
     }
 
-    //Loops through Rooms list checking their status and only returns DECOMMISSIONED rooms
-    public ArrayList<Room> decommissionedRooms() {
+    //Loops through ROOMS database table checking the status and only returns DECOMMISSIONED rooms
+    public ArrayList<Room> decommissionedRooms() throws SQLException{
         ArrayList<Room> decommissioned = new ArrayList<>();
-        for (Room r : roomList) {
+        for (Room r : roomDAO.getAllRooms()) {
             if (r.getStatus() == RoomStatus.DECOMMISSIONED) {
                 decommissioned.add(r);
             }
@@ -178,9 +166,9 @@ public class HotelSystem {
         return decommissioned;
     }
 
-    //returns the full bookingList
-    public ArrayList<Booking> viewBookings() {
-        return bookingList;
+    //returns the full BOOKING table
+    public ArrayList<Booking> viewBookings() throws SQLException{
+        return bookingDAO.getAllBookings();
     }
 
     //loops through booking list and uses getBookingID to check if there are any id matches
