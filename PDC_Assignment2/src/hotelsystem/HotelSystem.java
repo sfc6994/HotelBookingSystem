@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.sql.*;
 
 /**
  *
@@ -15,39 +16,54 @@ import java.util.ArrayList;
  */
 public class HotelSystem {
 
-    private ArrayList<Room> roomList = new ArrayList<>();
-    private ArrayList<Booking> bookingList = new ArrayList<>();
-    private ArrayList<BookingRequest> requestList = new ArrayList<>();
-
     //create file handler type
-    private FileHandler fileHandler;
+    //private FileHandler fileHandler;
+    private Connection conn;
+    private RoomDAO roomDAO;
+    private BookingDAO bookingDAO;
+    private BookingRequestDAO bookingRequestDAO;
 
     private String adminPassword;
     private int idCounter;
 
-    //
-    public HotelSystem() {
-        //initilize the file handler and then fill the lists with the saved info from the txt files.
-        this.fileHandler = new FileHandler();
-        this.roomList = fileHandler.loadRooms();
-        this.bookingList = fileHandler.loadBookings();
-        this.requestList = fileHandler.loadRequests();
+    public HotelSystem() throws SQLException{
+        DatabaseManager dbm = DatabaseManager.getDataBaseManagerInstance();
+        this.conn = dbm.getConnection();
+        roomDAO = new RoomDAO(dbm.getConnection());
+        bookingDAO = new BookingDAO(dbm.getConnection());
+        bookingRequestDAO = new BookingRequestDAO(dbm.getConnection());
 
-        //load the counter from the IdCounter from txt file so bookingID and requestID are always unique so admin doesn't confuse booking and booking request IDs
-        this.idCounter = fileHandler.loadIdCounter();
+        //Gets the max booking id and max request id from the BOOKINGS and REQUESTS table and stores into variable
+        int bookingNumID =0 ;
+        int requestNumID = 0;
+        ResultSet rs1 = conn.createStatement().executeQuery("SELECT MAX (BOOKINGID) FROM BOOKINGS");
+        ResultSet rs2 = conn.createStatement().executeQuery("SELECT MAX (REQUESTID) FROM REQUESTS");
+        if(rs1.next()){
+        bookingNumID = rs1.getInt(1);
+        }
+        if(rs2.next()){
+        requestNumID = rs2.getInt(1);
+        }
+        
+        //Sets the idCounter to +1 of the highest existing id between the REQUEST and BOOKING tables to prevent duplciate id
+        if(bookingNumID > requestNumID){
+            this.idCounter = bookingNumID + 1;
+        }else{
+            this.idCounter = requestNumID + 1;
+        }
+
         //password for admin
         this.adminPassword = "Admin123";
         
-        //create rooms on startup if room list is empty
-        if(roomList.isEmpty())
+        //create rooms on startup if the ROOMS database is empty
+        if(roomDAO.getAllRooms().isEmpty())
         {
-            roomList.add(new Room(101, RoomType.SINGLE, 1));
-            roomList.add(new Room(102, RoomType.DOUBLE, 2));
-            roomList.add(new Room(103, RoomType.SUITE,  4));
-            roomList.add(new Room(104, RoomType.SINGLE, 1));
-            roomList.add(new Room(105, RoomType.DOUBLE, 2));
-            roomList.add(new Room(106, RoomType.SUITE,  4));
-            fileHandler.saveRooms(roomList);
+            roomDAO.addRoom(new Room(101, RoomType.SINGLE, 1));
+            roomDAO.addRoom(new Room(102, RoomType.DOUBLE, 2));
+            roomDAO.addRoom(new Room(103, RoomType.SUITE,  4));
+            roomDAO.addRoom(new Room(104, RoomType.SINGLE, 1));
+            roomDAO.addRoom(new Room(105, RoomType.DOUBLE, 2));
+            roomDAO.addRoom(new Room(106, RoomType.SUITE,  4)); 
         }
         
     }
