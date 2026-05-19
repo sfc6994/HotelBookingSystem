@@ -5,6 +5,7 @@
 package hotelsystem;
 
 import java.util.Scanner;
+import java.sql.*;
 
 /**
  *
@@ -14,7 +15,8 @@ import java.util.Scanner;
 public class Main {
 
     public static void main(String args[]) {
-
+        
+        try{
         HotelSystem hotelSystem = new HotelSystem();
         Scanner scan = new Scanner(System.in);
         boolean run = true;
@@ -49,5 +51,9 @@ public class Main {
 
         }
         scan.close();
+        DatabaseManager.getDataBaseManagerInstance().shutdownDB();
+        }catch(SQLException ex){
+            System.err.println("Error: " + ex.getMessage());
+        }
     }
 }

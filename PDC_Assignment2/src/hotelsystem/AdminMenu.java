@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
+import java.sql.*;
 
 public class AdminMenu {
 
@@ -43,7 +44,7 @@ public class AdminMenu {
         System.out.print("Enter choice: ");
     }
 
-    public void handleAdminInput() {
+    public void handleAdminInput() throws SQLException{
         System.out.print("Enter admin password: ");
         String password = scanner.nextLine().trim();
         if (!hotelSystem.verifyPassword(password)) {
