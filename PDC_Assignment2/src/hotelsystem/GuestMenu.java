@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
+import java.sql.*;
 
 public class GuestMenu {
 
@@ -27,7 +28,7 @@ public class GuestMenu {
         System.out.println("Would you like to make a booking request? (y/n): ");
     }
 
-    public void handleGuestInput() {
+    public void handleGuestInput() throws SQLException{
         boolean running = true;
         while (running) {
             displayGuestMenu();

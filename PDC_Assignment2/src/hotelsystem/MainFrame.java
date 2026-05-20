@@ -65,7 +65,7 @@ public class MainFrame extends JFrame {
         guestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new GuestPanel(hotelSystem).setVisible(true);
+                new GuestPanel(hotelSystem).setVisible(true);
             }
         });
 
