@@ -40,7 +40,7 @@ public class GuestPanel extends JFrame {
         JLabel nameLabel = new JLabel("Enter Full Name (e.g Rob Mallen)");
         guestName = new JTextField(50);
         JLabel typeLabel = new JLabel("Pick Room type");
-        roomType = new JComboBox<>(new String[]{"Single $100", "Double $200", "Suite $400"});
+        roomType = new JComboBox<>(new String[]{"Single $100 (1 Max Guest)", "Double $200 (2 Max Guests)", "Suite $400 (4 Max Guest)"});
         JLabel countLabel = new JLabel("How many guests?");
         guestCount = new JComboBox<>(new Integer[]{1, 2, 3, 4});
         JLabel checkInLabel = new JLabel("Enter check in date (e.g 12/06/2001)");
@@ -75,17 +75,22 @@ public class GuestPanel extends JFrame {
 
     }
 
-    private void guestInput() throws SQLException {
+    private void guestInput() {
         // 1. Collect inputs
         String name = guestName.getText().trim();
         String checkInStr = checkIn.getText().trim();
         String checkOutStr = checkOut.getText().trim();
         int roomIndex = roomType.getSelectedIndex();
         int guests = (Integer) guestCount.getSelectedItem();
+        int maxGuest = 0;
 
         // 2. Missing field validation
         if (name.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please enter your full name.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if(name.length() > 75){
+            JOptionPane.showMessageDialog(this, "Sorry name cannot be larger then 75 characters");
             return;
         }
         if (checkInStr.isEmpty()) {
@@ -128,9 +133,32 @@ public class GuestPanel extends JFrame {
             case 1:
                 selectedRoom = RoomType.DOUBLE;
                 break;
-            default:
+            case 2:
                 selectedRoom = RoomType.SUITE;
                 break;
+            default:
+                JOptionPane.showMessageDialog(this, "Room type can't be selected");
+                return;
+        }
+        
+        //Added check to make sure guest count no over room capacity
+        switch(selectedRoom){
+            case SINGLE:
+                maxGuest = 1;
+                break;
+            case DOUBLE:
+                maxGuest = 2;
+                break;
+            case SUITE:
+                maxGuest = 4;
+                break;
+            default:
+                break;           
+        }
+        
+        if(guests > maxGuest){
+            JOptionPane.showMessageDialog(this, selectedRoom + " over maximum room capacity of " + maxGuest + " guests");
+            return;
         }
 
         // 6. Calculate price
