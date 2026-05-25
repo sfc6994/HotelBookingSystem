@@ -5,6 +5,7 @@
 package hotelsystem;
 
 import java.sql.*;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -20,7 +21,7 @@ public class Main {
         MainFrame mfe = new MainFrame(hotelSystem);
         mfe.setVisible(true);
         }catch(SQLException ex){
-            System.err.println("Error: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Database connection has failed: " + ex.getMessage());
         }
     }
 }

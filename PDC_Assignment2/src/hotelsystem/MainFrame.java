@@ -19,10 +19,18 @@ public class MainFrame extends JFrame {
     public MainFrame(HotelSystem hotelSystem) {
         this.hotelSystem = hotelSystem;
         setTitle("Hotel System");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setSize(400, 250);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                DatabaseManager.getDataBaseManagerInstance().shutdownDB();
+                System.exit(0);
+            }
+        });
 
         JLabel titleLabel = new JLabel("Hotel System Main Menu", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
