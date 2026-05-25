@@ -90,7 +90,7 @@ public class GuestPanel extends JFrame {
             return;
         }
         if(name.length() > 75){
-            JOptionPane.showMessageDialog(this, "Sorry name cannot be larger then 75 characters");
+            JOptionPane.showMessageDialog(this, "Sorry name cannot be larger than 75 characters");
             return;
         }
         if (checkInStr.isEmpty()) {

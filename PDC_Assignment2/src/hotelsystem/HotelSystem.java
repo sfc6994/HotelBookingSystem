@@ -115,18 +115,16 @@ public class HotelSystem {
     public void updateRoomStatus(int roomNumber, RoomStatus status) throws SQLException {
         Room room = findRoom(roomNumber);
         if (room == null) {
-            System.out.println("Error: Room " + roomNumber + " not found.");
-            return;
+            throw new IllegalArgumentException("Error: Room " + roomNumber + " not found.");
         }
         roomDAO.updateRoomStatus(roomNumber, status);
     }
 
-    //checks if roomNumber doesn't exist using findRoom, if it does prints a error message
+    //checks if roomNumber doesn't exist using findRoom, if it does throws illegalargumentexception
     //otherwise adds a object to ROOMS table
     public void addRoom(int roomNumber, RoomType type, int capacity) throws SQLException {
         if (findRoom(roomNumber) != null) {
-            System.out.println("Error: Room " + roomNumber + " already exists.");
-            return;
+            throw new IllegalArgumentException("Error: Room " + roomNumber + " already exists.");
         }
         roomDAO.addRoom(new Room(roomNumber, type, capacity));
     }
@@ -177,13 +175,12 @@ public class HotelSystem {
     }
 
     //Finds the booking by its ID in BOOKINGS table
-    //if not found returns error message 
+    //if not found throws illegalargumentexception 
     //if found deletes from BOOKINGS table and then updates the room status back to AVAILABLE in ROOMS table
     public void cancelBooking(int id) throws SQLException {
         Booking booking = findBooking(id);
         if (booking == null) {
-            System.out.println("Error: Booking " + id + " not found.");
-            return;
+            throw new IllegalArgumentException("Error: Booking " + id + " not found.");
         }
         bookingDAO.cancelBooking(id);
         roomDAO.updateRoomStatus(booking.getRoomNumber(), RoomStatus.AVAILABLE);
@@ -191,31 +188,29 @@ public class HotelSystem {
     }
 
     //Finds the booking by its ID in BOOKINGS table
-    //if not found returns error message
+    //if not found throws illegalargumentexception
     //if found uses updateRoomStatus to change the booking at the enerted room number to occupied
     public void checkIn(int id) throws SQLException {
         Booking booking = findBooking(id);
         if (booking == null) {
-            System.out.println("Error: Booking " + id + " not found.");
-            return;
+            throw new IllegalArgumentException("Error: Booking " + id + " not found.");
         }
         roomDAO.updateRoomStatus(booking.getRoomNumber(), RoomStatus.OCCUPIED);
     }
 
     //uses findBooking to find the booking
-    //if not found returns error message
+    //if not found throws illegalargumentexception
     //if found uses updateRoomStatus to change the booking at the enerted room number to available
     public void checkOut(int id) throws SQLException {
         Booking booking = findBooking(id);
         if (booking == null) {
-            System.out.println("Error: Booking " + id + " not found.");
-            return;
+            throw new IllegalArgumentException("Error: Booking " + id + " not found.");
         }
         roomDAO.updateRoomStatus(booking.getRoomNumber(), RoomStatus.AVAILABLE);
     }
 
-    //use findRoom to check if room exists, if not print error and return
-    //uses getStatus to check is room status isn't available, if it isnt prints error and returns
+    //use findRoom to check if room exists, if not throws illegalargumentexception
+    //uses getStatus to check is room status isn't available, if it isnt throws illegalargumentexception
     //otherwise it checks the dates enerted to make sure they are correct
     //then calls calculatePrice to work out the price
     //creates the new booking object and uses idCounter to give it unique ID and increments the counter
@@ -223,12 +218,10 @@ public class HotelSystem {
     public void createBooking(String name, int roomNumber, String checkIn, String checkOut) throws SQLException {
         Room room = findRoom(roomNumber);
         if (room == null) {
-            System.out.println("Error: Room " + roomNumber + " not found.");
-            return;
+            throw new IllegalArgumentException("Error: Room " + roomNumber + " not found.");
         }
         if (room.getStatus() != RoomStatus.AVAILABLE) {
-            System.out.println("Error: Room " + roomNumber + " is not available.");
-            return;
+            throw new IllegalArgumentException("Error: Room " + roomNumber + " is not available.");
         }
 
         //Date logic to make sure dates are actually possible (checkout must be after check in)
@@ -236,8 +229,7 @@ public class HotelSystem {
         LocalDate inDate = LocalDate.parse(checkIn, formatter);
         LocalDate outDate = LocalDate.parse(checkOut, formatter);
         if (outDate.isBefore(inDate) || outDate.isEqual(inDate)) {
-            System.out.println("Error: Check out date must be after Check in date");
-            return;
+            throw new IllegalArgumentException("Error: Check out date must be after Check in date");
         }
         
         double totalPrice = calculatePrice(checkIn, checkOut, room.getRoomType());
@@ -264,9 +256,9 @@ public class HotelSystem {
     }
 
     //Finds the booking request in the REQUESTS table using the id
-    //if its not found error message is returned
+    //if its not found throws illegalargumentexception
     //Loops the ROOM table to check if an AVAILABLE room exists and that its of the right type
-    //If not found error message and returns
+    //If not found throws illegalargumentexception
     //If found sets status to OCCUPIED
     //Creates a new booknig with unique id, adds it to the BOOKINGS table, deletes the request from the REQUESTS table
     public void approveRequest(int id) throws SQLException {
@@ -274,8 +266,7 @@ public class HotelSystem {
         BookingRequest request = bookingRequestDAO.findRequest(id);
         
         if (request == null) {
-            System.out.println("Error: Request " + id + " not found.");
-            return;
+            throw new IllegalArgumentException("Error: Request " + id + " not found.");
         }
         Room room = null;
         for (Room r : roomDAO.getAllRooms()) {
@@ -285,8 +276,7 @@ public class HotelSystem {
             }
         }
         if (room == null) {
-            System.out.println("Error: No available room of type " + request.getRoomType() + " found.");
-            return;
+            throw new IllegalArgumentException("Error: No available room of type " + request.getRoomType() + " found.");
         }
         
         Booking booking = new Booking(idCounter, request.getGuestName(), room.getRoomNumber(),
@@ -298,13 +288,12 @@ public class HotelSystem {
     }
 
     //Finds the booking request by its id
-    //if its not found returns and prints message
+    //if its not found throws illegalargumentexception
     //if found deletes the booking request from the REQUESTS table
     public void deleteRequest(int id) throws SQLException {
         BookingRequest request = bookingRequestDAO.findRequest(id);
         if (request == null) {
-            System.out.println("Error: Request " + id + " not found.");
-            return;
+            throw new IllegalArgumentException("Error: Request " + id + " not found.");
         }
         bookingRequestDAO.deleteRequest(id);
     }
