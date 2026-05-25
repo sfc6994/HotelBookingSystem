@@ -22,72 +22,63 @@ public class BookingDAO {
 
     //Inserts the new booking into the BOOKINGS table in the database with the following values
     public void addBooking(Booking booking) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement("INSERT INTO BOOKINGS(BOOKINGID, GUESTNAME, ROOMNUMBER, CHECKIN, "
-                + "CHECKOUT, TOTALPRICE) VALUES(?, ?, ?, ?, ?, ?)");
-
-        pstmt.setInt(1, booking.getBookingID());
-        pstmt.setString(2, booking.getGuestName());
-        pstmt.setInt(3, booking.getRoomNumber());
-        pstmt.setString(4, booking.getCheckIn());
-        pstmt.setString(5, booking.getCheckOut());
-        pstmt.setDouble(6, booking.getTotalPrice());
-        pstmt.executeUpdate();
-        pstmt.close();
+        try (PreparedStatement pstmt = conn.prepareStatement("INSERT INTO BOOKINGS(BOOKINGID, GUESTNAME, ROOMNUMBER, CHECKIN, "
+                + "CHECKOUT, TOTALPRICE) VALUES(?, ?, ?, ?, ?, ?)")) {
+            pstmt.setInt(1, booking.getBookingID());
+            pstmt.setString(2, booking.getGuestName());
+            pstmt.setInt(3, booking.getRoomNumber());
+            pstmt.setString(4, booking.getCheckIn());
+            pstmt.setString(5, booking.getCheckOut());
+            pstmt.setDouble(6, booking.getTotalPrice());
+            pstmt.executeUpdate();
+        }
     }
 
     //Uses bookingID to find the booking in BOOKING table and then returns the Booking object, return null if not found
     public Booking findBooking(int bookingID) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM BOOKINGS WHERE BOOKINGID = ?");
-
-        pstmt.setInt(1, bookingID);
-        ResultSet rs = pstmt.executeQuery();
-
-        Booking booking = null;
-        if (rs.next()) {
-            booking = new Booking(
-                    rs.getInt("BOOKINGID"),
-                    rs.getString("GUESTNAME"),
-                    rs.getInt("ROOMNUMBER"),
-                    rs.getString("CHECKIN"),
-                    rs.getString("CHECKOUT"),
-                    rs.getDouble("TOTALPRICE")
-            );
+        Booking booking;
+        try (PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM BOOKINGS WHERE BOOKINGID = ?")) {
+            pstmt.setInt(1, bookingID);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                booking = null;
+                if (rs.next()) {
+                    booking = new Booking(
+                            rs.getInt("BOOKINGID"),
+                            rs.getString("GUESTNAME"),
+                            rs.getInt("ROOMNUMBER"),
+                            rs.getString("CHECKIN"),
+                            rs.getString("CHECKOUT"),
+                            rs.getDouble("TOTALPRICE")
+                    );
+                }
+            }
         }
-
-        rs.close();
-        pstmt.close();
         return booking;
     }
 
     //Removes the cancelled booking from the BOOKING table by using the bookingID
     public void cancelBooking(int bookingID) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement("DELETE FROM BOOKINGS WHERE BOOKINGID = ?");
-
-        pstmt.setInt(1, bookingID);
-        pstmt.executeUpdate();
-        pstmt.close();
+        try (PreparedStatement pstmt = conn.prepareStatement("DELETE FROM BOOKINGS WHERE BOOKINGID = ?")) {
+            pstmt.setInt(1, bookingID);
+            pstmt.executeUpdate();
+        }
     }
 
     //Returns all Bookings from BOOKINGS table and stores them inside ArrayList as booking objects
     public ArrayList<Booking> getAllBookings() throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM BOOKINGS");
-
-        ResultSet rs = pstmt.executeQuery();
-        ArrayList<Booking> bookings = new ArrayList<>();
-
-        while (rs.next()) {
-            bookings.add(new Booking(
-                    rs.getInt("BOOKINGID"),
-                    rs.getString("GUESTNAME"),
-                    rs.getInt("ROOMNUMBER"),
-                    rs.getString("CHECKIN"),
-                    rs.getString("CHECKOUT"),
-                    rs.getDouble("TOTALPRICE")
-            ));
-        }
-
-        rs.close();
-        pstmt.close();
+        ArrayList<Booking> bookings;
+        try (PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM BOOKINGS"); ResultSet rs = pstmt.executeQuery()) {
+            bookings = new ArrayList<>();
+            while (rs.next()) {
+                bookings.add(new Booking(
+                        rs.getInt("BOOKINGID"),
+                        rs.getString("GUESTNAME"),
+                        rs.getInt("ROOMNUMBER"),
+                        rs.getString("CHECKIN"),
+                        rs.getString("CHECKOUT"),
+                        rs.getDouble("TOTALPRICE")
+                ));
+            }          }
         return bookings;
     }
 

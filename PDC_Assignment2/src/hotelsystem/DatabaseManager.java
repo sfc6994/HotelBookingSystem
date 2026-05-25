@@ -52,16 +52,14 @@ public final class DatabaseManager {
         boolean flag = false;
         try{
             DatabaseMetaData dbmd = conn.getMetaData();
-            ResultSet rs = dbmd.getTables(null, null, null, null);
-            
-            while(rs.next()){
-            String tname = rs.getString("TABLE_NAME");
-            if(tname.equalsIgnoreCase(tableName)){
-                flag = true;
+            try (ResultSet rs = dbmd.getTables(null, null, null, null)) {
+                while(rs.next()){
+                    String tname = rs.getString("TABLE_NAME");
+                    if(tname.equalsIgnoreCase(tableName)){
+                        flag = true;
+                    }
                 }
             }
-            
-            rs.close();
 
         }catch(SQLException ex){
             System.err.println("Table check failed: " + ex.getMessage());
@@ -72,23 +70,22 @@ public final class DatabaseManager {
     //Creates the tables for the database if they didn't exist already
     //Sets primary keys and foreign key relationships between each of the tables
     public void createTables() throws SQLException{
-        Statement statement = conn.createStatement();
-        
-        if(!checkTableExists("ROOMS")){
-            statement.executeUpdate("CREATE TABLE ROOMS (ROOMNUMBER INT PRIMARY KEY, ROOMTYPE VARCHAR(20), "
-                    + "CAPACITY INT, STATUS VARCHAR(20))");
+        try (Statement statement = conn.createStatement()) {
+            if(!checkTableExists("ROOMS")){
+                statement.executeUpdate("CREATE TABLE ROOMS (ROOMNUMBER INT PRIMARY KEY, ROOMTYPE VARCHAR(20), "
+                        + "CAPACITY INT, STATUS VARCHAR(20))");
+            }
+            //ROOMNUMBER is foreign key from the ROOMS table
+            if(!checkTableExists("BOOKINGS")){
+                statement.executeUpdate("CREATE TABLE BOOKINGS (BOOKINGID INT PRIMARY KEY, GUESTNAME VARCHAR(75), "
+                        + "ROOMNUMBER INT REFERENCES ROOMS(ROOMNUMBER), CHECKIN VARCHAR(20), CHECKOUT VARCHAR(20), TOTALPRICE DOUBLE)");
+            }
+            
+            if(!checkTableExists("REQUESTS")){
+                statement.executeUpdate("CREATE TABLE REQUESTS (REQUESTID INT PRIMARY KEY, GUESTNAME VARCHAR(75), "
+                        + "ROOMTYPE VARCHAR(20), GUESTCOUNT INT, CHECKIN VARCHAR(20), CHECKOUT VARCHAR(20), TOTALPRICE DOUBLE)");
+            }
         }
-        //ROOMNUMBER is foreign key from the ROOMS table
-        if(!checkTableExists("BOOKINGS")){
-            statement.executeUpdate("CREATE TABLE BOOKINGS (BOOKINGID INT PRIMARY KEY, GUESTNAME VARCHAR(75), "
-                    + "ROOMNUMBER INT REFERENCES ROOMS(ROOMNUMBER), CHECKIN VARCHAR(20), CHECKOUT VARCHAR(20), TOTALPRICE DOUBLE)");
-        }
-        
-        if(!checkTableExists("REQUESTS")){
-            statement.executeUpdate("CREATE TABLE REQUESTS (REQUESTID INT PRIMARY KEY, GUESTNAME VARCHAR(75), "
-                    + "ROOMTYPE VARCHAR(20), GUESTCOUNT INT, CHECKIN VARCHAR(20), CHECKOUT VARCHAR(20), TOTALPRICE DOUBLE)");
-        }
-        statement.close();
     }
     
     //Shut down the Database when called, prints if successful
