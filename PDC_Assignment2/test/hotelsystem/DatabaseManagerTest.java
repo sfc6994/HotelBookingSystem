@@ -17,104 +17,62 @@ import static org.junit.Assert.*;
  * @author Cameron
  */
 public class DatabaseManagerTest {
-    
-    public DatabaseManagerTest() {
-    }
-    
+
+    //Set up database connection
     @BeforeClass
     public static void setUpClass() {
+        DatabaseManager.getDataBaseManagerInstance();
     }
-    
+
+    //Shut down the database
     @AfterClass
     public static void tearDownClass() {
+        DatabaseManager.getDataBaseManagerInstance().shutdownDB();
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
 
-    /**
-     * Test of getDataBaseManagerInstance method, of class DatabaseManager.
-     */
+    // Verifies instance exists and calling twice returns the same instance (Singleton)
     @Test
     public void testGetDataBaseManagerInstance() {
         System.out.println("getDataBaseManagerInstance");
-        DatabaseManager expResult = null;
-        DatabaseManager result = DatabaseManager.getDataBaseManagerInstance();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        DatabaseManager instance1 = DatabaseManager.getDataBaseManagerInstance();
+        DatabaseManager instance2 = DatabaseManager.getDataBaseManagerInstance();
+        assertNotNull(instance1);
+        assertSame(instance1, instance2);
     }
 
-    /**
-     * Test of clone method, of class DatabaseManager.
-     */
-    @Test
+    // Verifies that cloning DatabaseManager throws CloneNotSupportedException
+    @Test(expected = CloneNotSupportedException.class)
     public void testClone() throws Exception {
         System.out.println("clone");
-        DatabaseManager instance = null;
-        Object expResult = null;
-        Object result = instance.clone();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        DatabaseManager instance = DatabaseManager.getDataBaseManagerInstance();
+        instance.clone();
     }
 
-    /**
-     * Test of getConnection method, of class DatabaseManager.
-     */
+    // Verifies the connection is not null and is active
     @Test
     public void testGetConnection() {
         System.out.println("getConnection");
-        DatabaseManager instance = null;
-        Connection expResult = null;
+        DatabaseManager instance = DatabaseManager.getDataBaseManagerInstance();
         Connection result = instance.getConnection();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertNotNull(result);
     }
 
-    /**
-     * Test of checkTableExists method, of class DatabaseManager.
-     */
+    // Verifies the three core tables exist in the database
     @Test
     public void testCheckTableExists() {
         System.out.println("checkTableExists");
-        String tableName = "";
-        DatabaseManager instance = null;
-        boolean expResult = false;
-        boolean result = instance.checkTableExists(tableName);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        DatabaseManager instance = DatabaseManager.getDataBaseManagerInstance();
+        assertTrue(instance.checkTableExists("ROOMS"));
+        assertTrue(instance.checkTableExists("BOOKINGS"));
+        assertTrue(instance.checkTableExists("REQUESTS"));
     }
 
-    /**
-     * Test of createTables method, of class DatabaseManager.
-     */
-    @Test
-    public void testCreateTables() throws Exception {
-        System.out.println("createTables");
-        DatabaseManager instance = null;
-        instance.createTables();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of shutdownDB method, of class DatabaseManager.
-     */
-    @Test
-    public void testShutdownDB() {
-        System.out.println("shutdownDB");
-        DatabaseManager instance = null;
-        instance.shutdownDB();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
 }
