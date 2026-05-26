@@ -27,13 +27,9 @@ public class HotelSystemTest {
 
     }
 
-    //After all tests have finished shutdown database and removes the test rooms
+    //After all tests have finished shutdown database
     @AfterClass
     public static void tearDownClass() throws SQLException {
-        Connection conn = DatabaseManager.getDataBaseManagerInstance().getConnection();
-        conn.createStatement().execute("DELETE FROM BOOKINGS WHERE ROOMNUMBER = 996");
-        conn.createStatement().execute("DELETE FROM ROOMS WHERE ROOMNUMBER IN (996, 997, 998, 999)");
-        conn.createStatement().execute("DELETE FROM REQUESTS WHERE GUESTNAME = 'Johnny'");
         DatabaseManager.getDataBaseManagerInstance().shutdownDB();
     }
 
@@ -45,7 +41,10 @@ public class HotelSystemTest {
 
     @After
     public void tearDown() throws SQLException {
-
+        Connection conn = DatabaseManager.getDataBaseManagerInstance().getConnection();
+        conn.createStatement().execute("DELETE FROM BOOKINGS WHERE ROOMNUMBER = 996");
+        conn.createStatement().execute("DELETE FROM ROOMS WHERE ROOMNUMBER IN (996, 997, 998, 999)");
+        conn.createStatement().execute("DELETE FROM REQUESTS WHERE GUESTNAME = 'Johnny'");
     }
 
     /**

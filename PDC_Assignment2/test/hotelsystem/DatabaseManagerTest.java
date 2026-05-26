@@ -5,6 +5,7 @@
 package hotelsystem;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -58,11 +59,12 @@ public class DatabaseManagerTest {
 
     // Verifies the connection is not null and is active
     @Test
-    public void testGetConnection() {
+    public void testGetConnection() throws SQLException {
         System.out.println("getConnection");
         DatabaseManager instance = DatabaseManager.getDataBaseManagerInstance();
         Connection result = instance.getConnection();
         assertNotNull(result);
+        assertFalse(result.isClosed());
     }
 
     // Verifies the three core tables exist in the database
