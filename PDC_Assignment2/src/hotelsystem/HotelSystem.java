@@ -298,4 +298,9 @@ public class HotelSystem {
         bookingRequestDAO.deleteRequest(id);
     }
     
+    //Finds booking request by its id, if unfound returns null
+    public BookingRequest findRequest(int id) throws SQLException{
+        return bookingRequestDAO.findRequest(id);
+    }
+    
 }
