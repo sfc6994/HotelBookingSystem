@@ -20,9 +20,10 @@ public class MainFrame extends JFrame {
         this.hotelSystem = hotelSystem;
         setTitle("Hotel System");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setSize(400, 250);
+        setSize(600, 400);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
+        setResizable(false);
 
         addWindowListener(new WindowAdapter() {
             @Override
@@ -35,14 +36,28 @@ public class MainFrame extends JFrame {
         JLabel titleLabel = new JLabel("Hotel System Main Menu", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
 
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10));
         JButton adminButton = new JButton("Admin Login");
         JButton guestButton = new JButton("Guest Booking Form");
-        buttonPanel.add(adminButton);
-        buttonPanel.add(guestButton);
+        adminButton.setPreferredSize(new Dimension(170, 40));
+        guestButton.setPreferredSize(new Dimension(170, 40));
+        
+        JPanel imagePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 40)){
+            private Image image;
+            
+            @Override
+            public void paintComponent(Graphics g){
+                super.paintComponent(g);
+                image = new ImageIcon("hotelmain.jpg").getImage();
+                
+                g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+            }
+        };
+        
+        imagePanel.add(adminButton);
+        imagePanel.add(guestButton);
 
         add(titleLabel, BorderLayout.NORTH);
-        add(buttonPanel, BorderLayout.CENTER);
+        add(imagePanel, BorderLayout.CENTER);
         adminButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
