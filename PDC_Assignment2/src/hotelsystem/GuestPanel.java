@@ -37,6 +37,7 @@ public class GuestPanel extends JFrame {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
 
         JPanel jpanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        jpanel.setBackground(new Color(176, 216, 216));
         JLabel nameLabel = new JLabel("Enter Full Name (e.g Rob Mallen)");
         guestName = new JTextField(50);
         JLabel typeLabel = new JLabel("Pick Room type");
@@ -48,6 +49,23 @@ public class GuestPanel extends JFrame {
         JLabel checkOutLabel = new JLabel("Enter check out date (e.g 12/07/2001)");
         checkOut = new JTextField(20);
         JButton submit = new JButton("Check Price & Submit");
+        submit.setBackground(new Color(102, 178, 178));
+        submit.setPreferredSize(new Dimension(0, 45));
+        submit.setOpaque(true);
+
+        submit.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                submit.setBackground(new Color(0, 100, 100));
+                submit.setForeground(new Color(200, 255, 255));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                submit.setBackground(new Color(102, 178, 178));
+                submit.setForeground(Color.BLACK);
+            }
+        });
 
         jpanel.add(nameLabel);
         jpanel.add(guestName);
@@ -66,7 +84,7 @@ public class GuestPanel extends JFrame {
         this.setResizable(false);
         setVisible(true);
 
-        submit.addActionListener(new ActionListener(){
+        submit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 guestInput();
@@ -89,7 +107,7 @@ public class GuestPanel extends JFrame {
             JOptionPane.showMessageDialog(this, "Please enter your full name.", "Missing Field", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        if(name.length() > 75){
+        if (name.length() > 75) {
             JOptionPane.showMessageDialog(this, "Sorry name cannot be larger than 75 characters");
             return;
         }
@@ -140,9 +158,9 @@ public class GuestPanel extends JFrame {
                 JOptionPane.showMessageDialog(this, "Room type can't be selected");
                 return;
         }
-        
+
         //Added check to make sure guest count no over room capacity
-        switch(selectedRoom){
+        switch (selectedRoom) {
             case SINGLE:
                 maxGuest = 1;
                 break;
@@ -153,10 +171,10 @@ public class GuestPanel extends JFrame {
                 maxGuest = 4;
                 break;
             default:
-                break;           
+                break;
         }
-        
-        if(guests > maxGuest){
+
+        if (guests > maxGuest) {
             JOptionPane.showMessageDialog(this, selectedRoom + " over maximum room capacity of " + maxGuest + " guests");
             return;
         }

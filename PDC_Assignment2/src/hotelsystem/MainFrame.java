@@ -55,6 +55,35 @@ public class MainFrame extends JFrame {
         
         imagePanel.add(adminButton);
         imagePanel.add(guestButton);
+        
+        
+        adminButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                adminButton.setBackground(new Color(200, 200, 200));
+                adminButton.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                adminButton.setBackground((null));
+                adminButton.setForeground(Color.BLACK);
+            }
+        });
+        
+        guestButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                guestButton.setBackground(new Color(200, 200, 200));
+                guestButton.setForeground(Color.WHITE);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                guestButton.setBackground((null));
+                guestButton.setForeground(Color.BLACK);
+            }
+        });
 
         add(titleLabel, BorderLayout.NORTH);
         add(imagePanel, BorderLayout.CENTER);
