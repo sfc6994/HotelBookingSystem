@@ -36,7 +36,7 @@ public class AdminPanel extends JFrame {
         adminCategoryChoice = new JComboBox<>(new String[]{"Room Management", "Booking Management", "Booking Request Management"});
         adminActionChoice = new JComboBox<>();
         JPanel northPanel = new JPanel(new BorderLayout());
-cardLayout = new CardLayout();
+        cardLayout = new CardLayout();
         midPanel = new JPanel(cardLayout);
         midPanel.add(createFindRoomPanel(), "FIND_ROOM");
         midPanel.add(createUpdateRoomStatusPanel(), "UPDATE_STATUS_ROOM");
@@ -64,21 +64,19 @@ cardLayout = new CardLayout();
         updateActionChoice();
         setVisible(true);
 
-
-        adminCategoryChoice.addActionListener(new ActionListener(){
+        adminCategoryChoice.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed (ActionEvent e){
-            updateActionChoice();
+            public void actionPerformed(ActionEvent e) {
+                updateActionChoice();
             }
         });
 
-        adminActionChoice.addActionListener(new ActionListener(){
+        adminActionChoice.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed (ActionEvent e){
-            updateField();
+            public void actionPerformed(ActionEvent e) {
+                updateField();
             }
         });
-
 
     }
 
