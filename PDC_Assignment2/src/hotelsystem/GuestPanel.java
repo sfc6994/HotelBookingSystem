@@ -41,7 +41,7 @@ public class GuestPanel extends JFrame {
         JLabel nameLabel = new JLabel("Enter Full Name (e.g Rob Mallen)");
         guestName = new JTextField(50);
         JLabel typeLabel = new JLabel("Pick Room type");
-        roomType = new JComboBox<>(new String[]{"Single $100 (1 Max Guest)", "Double $200 (2 Max Guests)", "Suite $400 (4 Max Guest)"});
+        roomType = new JComboBox<>(new String[]{"Single $100 (1 Max Guest)", "Double $200 (2 Max Guests)", "Suite $400 (4 Max Guests)"});
         JLabel countLabel = new JLabel("How many guests?");
         guestCount = new JComboBox<>(new Integer[]{1, 2, 3, 4});
         JLabel checkInLabel = new JLabel("Enter check in date (e.g 12/06/2001)");

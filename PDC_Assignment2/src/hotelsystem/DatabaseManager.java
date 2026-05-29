@@ -22,7 +22,7 @@ public final class DatabaseManager {
        conn = DriverManager.getConnection(URL);
        createTables();
        }catch(SQLException ex){
-       System.err.println("Database Failed to Connect: " + ex.getMessage());
+       System.err.println("Database Failed to Connect: \nMake sure only one instance is running.\nDetails: " + ex.getMessage());
        }
     }
     
