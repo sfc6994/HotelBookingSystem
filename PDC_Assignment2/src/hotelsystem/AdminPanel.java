@@ -43,13 +43,13 @@ public class AdminPanel extends JFrame {
         cardLayout = new CardLayout();
         
         midPanel = new JPanel(cardLayout);
-        /*
         midPanel.add(createFindRoomPanel(), "FIND_ROOM");
         midPanel.add(createUpdateRoomStatusPanel(), "UPDATE_STATUS_ROOM");
         midPanel.add(createAddRoomPanel(), "ADD_ROOM");
         midPanel.add(createViewActiveRoomsPanel(), "ACTIVE_ROOMS");
         midPanel.add(createAvailableRoomsPanel(), "AVAILABLE_ROOMS");
         midPanel.add(createDecommissionedRoomsPanel(), "DECOMMISSIONED_ROOMS");
+        /*
         midPanel.add(createViewBookingsPanel(), "VIEW_BOOKINGS");
         midPanel.add(createFindBookingPanel(), "FIND_BOOKING");
         midPanel.add(createCancelBookingPanel(), "CANCEL_BOOKING");
@@ -152,5 +152,222 @@ public class AdminPanel extends JFrame {
                 cardLayout.show(midPanel, "DELETE_REQUEST");
             }
         }
+    }
+    
+    private JPanel createFindRoomPanel() {
+    JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+    JLabel roomLabel = new JLabel("Enter Room Number:");
+    JTextField roomField = new JTextField();
+    JButton btn = new JButton("Find Room");
+    panel.add(roomLabel);
+    panel.add(roomField);
+    panel.add(new JLabel());
+    panel.add(btn);
+    btn.addActionListener(e -> {
+        String roomStr = roomField.getText().trim();
+        if (roomStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a room number.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            int roomNum = Integer.parseInt(roomStr);
+            Room room = hotelSystem.findRoom(roomNum);
+            if (room == null) {
+                JOptionPane.showMessageDialog(this, "Room " + roomNum + " not found.", "Not Found", JOptionPane.ERROR_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, room.toString(), "Room Found", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Room number must be a valid integer.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    });
+    return panel;
+}
+
+private JPanel createUpdateRoomStatusPanel() {
+    JPanel panel = new JPanel(new GridLayout(4, 2, 10, 10));
+    JLabel roomLabel = new JLabel("Enter Room Number:");
+    JTextField roomField = new JTextField();
+    JLabel statusLabel = new JLabel("Select New Status:");
+    JComboBox<RoomStatus> statusBox = new JComboBox<>(RoomStatus.values());
+    JButton btn = new JButton("Update Status");
+    panel.add(roomLabel);
+    panel.add(roomField);
+    panel.add(statusLabel);
+    panel.add(statusBox);
+    panel.add(new JLabel());
+    panel.add(btn);
+    btn.addActionListener(e -> {
+        String roomStr = roomField.getText().trim();
+        if (roomStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a room number.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            int roomNum = Integer.parseInt(roomStr);
+            RoomStatus status = (RoomStatus) statusBox.getSelectedItem();
+            hotelSystem.updateRoomStatus(roomNum, status);
+            JOptionPane.showMessageDialog(this, "Room " + roomNum + " status updated to " + status + ".", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Room number must be a valid integer.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        } catch (IllegalArgumentException | SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    });
+    return panel;
+}
+
+private JPanel createAddRoomPanel() {
+    JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
+    JLabel roomLabel = new JLabel("Enter Room Number:");
+    JTextField roomField = new JTextField();
+    JLabel typeLabel = new JLabel("Select Room Type:");
+    JComboBox<RoomType> typeBox = new JComboBox<>(RoomType.values());
+    JLabel capLabel = new JLabel("Enter Capacity:");
+    JTextField capField = new JTextField();
+    JButton btn = new JButton("Add Room");
+    panel.add(roomLabel);
+    panel.add(roomField);
+    panel.add(typeLabel);
+    panel.add(typeBox);
+    panel.add(capLabel);
+    panel.add(capField);
+    panel.add(new JLabel());
+    panel.add(btn);
+    btn.addActionListener(e -> {
+        String roomStr = roomField.getText().trim();
+        String capStr = capField.getText().trim();
+        
+        if (roomStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in the room number.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+            return;
+        }   
+        
+        if (capStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in the capacity.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        int roomNum;
+        int capacity;
+        try {
+            
+            roomNum = Integer.parseInt(roomStr);
+            capacity = Integer.parseInt(capStr);
+            
+            if (roomNum > 10000) {
+                JOptionPane.showMessageDialog(this, "Room number must be lower than 10,000", "Invalid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            if (roomNum <= 0) {
+                JOptionPane.showMessageDialog(this, "Room number must be greater than 0", "Invalid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            try {
+                roomNum = Integer.parseInt(capStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Room number must be a valid number", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (capacity <= 0) {
+                JOptionPane.showMessageDialog(this, "Capacity must be greater than 0", "Invalid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
+            try {
+                capacity = Integer.parseInt(capStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Capacity must be a valid number.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+           
+            RoomType type = (RoomType) typeBox.getSelectedItem();
+            hotelSystem.addRoom(roomNum, type, capacity);
+            JOptionPane.showMessageDialog(this, "Room " + roomNum + " added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        }   catch (IllegalArgumentException | SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } 
+    });
+    return panel;
+}
+
+private JPanel createViewActiveRoomsPanel() {
+    JPanel panel = new JPanel(new BorderLayout());
+    JTextArea textArea = new JTextArea();
+    textArea.setEditable(false);
+    JScrollPane scroll = new JScrollPane(textArea);
+    JButton btn = new JButton("Refresh");
+    panel.add(scroll, BorderLayout.CENTER);
+    panel.add(btn, BorderLayout.SOUTH);
+    btn.addActionListener(e -> {
+        try {
+            ArrayList<Room> rooms = hotelSystem.viewActiveRooms();
+            textArea.setText("");
+            if (rooms.isEmpty()) {
+                textArea.setText("No active rooms found.");
+            } else {
+                for (Room r : rooms) textArea.append(r.toString() + "\n");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    });
+    btn.doClick();
+    return panel;
+}
+
+private JPanel createAvailableRoomsPanel() {
+    JPanel panel = new JPanel(new BorderLayout());
+    JTextArea textArea = new JTextArea();
+    textArea.setEditable(false);
+    JScrollPane scroll = new JScrollPane(textArea);
+    JButton btn = new JButton("Refresh");
+    panel.add(scroll, BorderLayout.CENTER);
+    panel.add(btn, BorderLayout.SOUTH);
+    btn.addActionListener(e -> {
+        try {
+            ArrayList<Room> rooms = hotelSystem.availableRooms();
+            textArea.setText("");
+            if (rooms.isEmpty()) {
+                textArea.setText("No available rooms found.");
+            } else {
+                for (Room r : rooms) textArea.append(r.toString() + "\n");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    });
+    btn.doClick();
+    return panel;
+    }
+
+    private JPanel createDecommissionedRoomsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        JScrollPane scroll = new JScrollPane(textArea);
+        JButton btn = new JButton("Refresh");
+        panel.add(scroll, BorderLayout.CENTER);
+        panel.add(btn, BorderLayout.SOUTH);
+        btn.addActionListener(e -> {
+            try {
+                ArrayList<Room> rooms = hotelSystem.decommissionedRooms();
+                textArea.setText("");
+                if (rooms.isEmpty()) {
+                    textArea.setText("No decommissioned rooms found.");
+                } else {
+                    for (Room r : rooms) textArea.append(r.toString() + "\n");
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        btn.doClick();
+        return panel;
     }
 }
