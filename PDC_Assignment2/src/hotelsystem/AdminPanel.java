@@ -15,7 +15,8 @@ import java.util.*;
 /**
  *
  
-@author kahn*/
+@author kahn
+*/
 
 public class AdminPanel extends JFrame {
 
@@ -54,11 +55,9 @@ public class AdminPanel extends JFrame {
         midPanel.add(createCancelBookingPanel(), "CANCEL_BOOKING");
         midPanel.add(createCheckOutPanel(), "CHECKOUT_BOOKING");
         midPanel.add(createBookingPanel(), "CREATE_BOOKING");
-        /*
         midPanel.add(createViewRequestsPanel(), "VIEW_REQUESTS");
         midPanel.add(createApproveRequestPanel(), "APPROVE_REQUEST");
         midPanel.add(createDeleteRequestPanel(), "DELETE_REQUEST");
-        */
         
         topDropDownPanel.add(adminCategoryChoice);
         topDropDownPanel.add(adminActionChoice);
@@ -371,7 +370,7 @@ private JPanel createViewActiveRoomsPanel() {
         return panel;
     }
     
-    // ---------------- Bookings 
+    // ---------------- BOOKINGS
     
     private JPanel createFindBookingPanel() {
         JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
@@ -569,6 +568,97 @@ private JPanel createViewActiveRoomsPanel() {
                     textArea.setText("No bookings found.");
                 } else {
                     for (Booking b : bookings) textArea.append(b.toString() + "\n");
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        btn.doClick();
+        return panel;
+    }
+        
+    // ---------------- REQUESTS
+        
+    private JPanel createApproveRequestPanel() {
+    JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+    JLabel idLabel = new JLabel("Enter Request ID to Approve:");
+    JTextField idField = new JTextField();
+    JButton btn = new JButton("Approve Request");
+    panel.add(idLabel);
+    panel.add(idField);
+    panel.add(new JLabel());
+    panel.add(btn);
+    btn.addActionListener(e -> {
+        String idStr = idField.getText().trim();
+        if (idStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter a request ID.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id;
+        try {
+            id = Integer.parseInt(idStr);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Request ID must be a valid integer.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        try {
+            hotelSystem.approveRequest(id);
+            JOptionPane.showMessageDialog(this, "Request " + id + " approved and booking created successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IllegalArgumentException | SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    });
+    return panel;
+}
+
+    private JPanel createDeleteRequestPanel() {
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JLabel idLabel = new JLabel("Enter Request ID to Delete:");
+        JTextField idField = new JTextField();
+        JButton btn = new JButton("Delete Request");
+        panel.add(idLabel);
+        panel.add(idField);
+        panel.add(new JLabel());
+        panel.add(btn);
+        btn.addActionListener(e -> {
+            String idStr = idField.getText().trim();
+            if (idStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter a request ID.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Request ID must be a valid integer.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            try {
+                hotelSystem.deleteRequest(id);
+                JOptionPane.showMessageDialog(this, "Request " + id + " deleted successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IllegalArgumentException | SQLException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return panel;
+    }
+
+    private JPanel createViewRequestsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        JScrollPane scroll = new JScrollPane(textArea);
+        JButton btn = new JButton("Refresh");
+        panel.add(scroll, BorderLayout.CENTER);
+        panel.add(btn, BorderLayout.SOUTH);
+        btn.addActionListener(e -> {
+            try {
+                ArrayList<BookingRequest> requests = hotelSystem.viewRequests();
+                textArea.setText("");
+                if (requests.isEmpty()) {
+                    textArea.setText("No requests found.");
+                } else {
+                    for (BookingRequest r : requests) textArea.append(r.toString() + "\n");
                 }
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
