@@ -460,7 +460,7 @@ private JPanel createViewActiveRoomsPanel() {
             try {
                 id = Integer.parseInt(idStr);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Booking ID must be a valid integer.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Booking ID must be a valid number.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             try {
@@ -494,22 +494,44 @@ private JPanel createViewActiveRoomsPanel() {
             String roomStr = roomField.getText().trim();
             String checkIn = inField.getText().trim();
             String checkOut = outField.getText().trim();
-            if (name.isEmpty() || roomStr.isEmpty() || checkIn.isEmpty() || checkOut.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+            
+            if (name.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in the name field.", "Missing Field", JOptionPane.WARNING_MESSAGE);
                 return;
             }
             if (name.length() > 75) {
                 JOptionPane.showMessageDialog(this, "Guest name cannot exceed 75 characters.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
                 return;
             }
+            if (roomStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in the room number field.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (checkIn.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in the check in field.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (checkOut.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in the check out field.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
             int roomNum;
+            
             try {
                 roomNum = Integer.parseInt(roomStr);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Room number must be a valid integer.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
                 return;
             }
+            
+            if (roomNum <= 0) {
+                JOptionPane.showMessageDialog(this, "Room number must be greater than 0.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            
             try {
                 LocalDate.parse(checkIn, fmt);
             } catch (DateTimeParseException ex) {
