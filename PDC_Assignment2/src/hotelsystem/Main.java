@@ -6,6 +6,8 @@ package hotelsystem;
 
 import java.sql.*;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+
 
 /**
  *
@@ -15,13 +17,15 @@ import javax.swing.JOptionPane;
 public class Main {
 
     public static void main(String args[]) {
-        
-        try{
-        HotelSystem hotelSystem = new HotelSystem();
-        MainFrame mfe = new MainFrame(hotelSystem);
-        mfe.setVisible(true);
-        }catch(SQLException ex){
+        try {
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            HotelSystem hotelSystem = new HotelSystem();
+            MainFrame mfe = new MainFrame(hotelSystem);
+            mfe.setVisible(true);
+        } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Database connection has failed: " + ex.getMessage());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, "Failed to set look and feel: " + ex.getMessage());
         }
     }
 }
