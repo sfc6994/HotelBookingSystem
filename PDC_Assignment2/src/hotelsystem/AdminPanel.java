@@ -49,12 +49,12 @@ public class AdminPanel extends JFrame {
         midPanel.add(createViewActiveRoomsPanel(), "ACTIVE_ROOMS");
         midPanel.add(createAvailableRoomsPanel(), "AVAILABLE_ROOMS");
         midPanel.add(createDecommissionedRoomsPanel(), "DECOMMISSIONED_ROOMS");
-        /*
         midPanel.add(createViewBookingsPanel(), "VIEW_BOOKINGS");
         midPanel.add(createFindBookingPanel(), "FIND_BOOKING");
         midPanel.add(createCancelBookingPanel(), "CANCEL_BOOKING");
         midPanel.add(createCheckOutPanel(), "CHECKOUT_BOOKING");
         midPanel.add(createBookingPanel(), "CREATE_BOOKING");
+        /*
         midPanel.add(createViewRequestsPanel(), "VIEW_REQUESTS");
         midPanel.add(createApproveRequestPanel(), "APPROVE_REQUEST");
         midPanel.add(createDeleteRequestPanel(), "DELETE_REQUEST");
@@ -321,29 +321,29 @@ private JPanel createViewActiveRoomsPanel() {
     return panel;
 }
 
-private JPanel createAvailableRoomsPanel() {
-    JPanel panel = new JPanel(new BorderLayout());
-    JTextArea textArea = new JTextArea();
-    textArea.setEditable(false);
-    JScrollPane scroll = new JScrollPane(textArea);
-    JButton btn = new JButton("Refresh");
-    panel.add(scroll, BorderLayout.CENTER);
-    panel.add(btn, BorderLayout.SOUTH);
-    btn.addActionListener(e -> {
-        try {
-            ArrayList<Room> rooms = hotelSystem.availableRooms();
-            textArea.setText("");
-            if (rooms.isEmpty()) {
-                textArea.setText("No available rooms found.");
-            } else {
-                for (Room r : rooms) textArea.append(r.toString() + "\n");
+    private JPanel createAvailableRoomsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        JScrollPane scroll = new JScrollPane(textArea);
+        JButton btn = new JButton("Refresh");
+        panel.add(scroll, BorderLayout.CENTER);
+        panel.add(btn, BorderLayout.SOUTH);
+        btn.addActionListener(e -> {
+            try {
+                ArrayList<Room> rooms = hotelSystem.availableRooms();
+                textArea.setText("");
+                if (rooms.isEmpty()) {
+                    textArea.setText("No available rooms found.");
+                } else {
+                    for (Room r : rooms) textArea.append(r.toString() + "\n");
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    });
-    btn.doClick();
-    return panel;
+        });
+        btn.doClick();
+        return panel;
     }
 
     private JPanel createDecommissionedRoomsPanel() {
@@ -362,6 +362,191 @@ private JPanel createAvailableRoomsPanel() {
                     textArea.setText("No decommissioned rooms found.");
                 } else {
                     for (Room r : rooms) textArea.append(r.toString() + "\n");
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        btn.doClick();
+        return panel;
+    }
+    
+    // ---------------- Bookings 
+    
+    private JPanel createFindBookingPanel() {
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JLabel idLabel = new JLabel("Enter Booking ID:");
+        JTextField idField = new JTextField();
+        JButton btn = new JButton("Find Booking");
+        panel.add(idLabel);
+        panel.add(idField);
+        panel.add(new JLabel());
+        panel.add(btn);
+        btn.addActionListener(e -> {
+            String idStr = idField.getText().trim();
+            if (idStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter a booking ID.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Booking ID must be a valid integer.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            try {
+                Booking booking = hotelSystem.findBooking(id);
+                if (booking == null) {
+                    JOptionPane.showMessageDialog(this, "Booking " + id + " not found.", "Not Found", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, booking.toString(), "Booking Found", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return panel;
+    }
+
+    private JPanel createCancelBookingPanel() {
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JLabel idLabel = new JLabel("Enter Booking ID to Cancel:");
+        JTextField idField = new JTextField();
+        JButton btn = new JButton("Cancel Booking");
+        panel.add(idLabel);
+        panel.add(idField);
+        panel.add(new JLabel());
+        panel.add(btn);
+        btn.addActionListener(e -> {
+            String idStr = idField.getText().trim();
+            if (idStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter a booking ID.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Booking ID must be a valid integer.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            try {
+                hotelSystem.cancelBooking(id);
+                JOptionPane.showMessageDialog(this, "Booking " + id + " cancelled successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IllegalArgumentException | SQLException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return panel;
+    }
+
+    private JPanel createCheckOutPanel() {
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JLabel idLabel = new JLabel("Enter Booking ID to Check Out:");
+        JTextField idField = new JTextField();
+        JButton btn = new JButton("Check Out");
+        panel.add(idLabel);
+        panel.add(idField);
+        panel.add(new JLabel());
+        panel.add(btn);
+        btn.addActionListener(e -> {
+            String idStr = idField.getText().trim();
+            if (idStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter a booking ID.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Booking ID must be a valid integer.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            try {
+                hotelSystem.checkOut(id);
+                JOptionPane.showMessageDialog(this, "Booking " + id + " checked out successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IllegalArgumentException | SQLException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return panel;
+    }
+
+    private JPanel createBookingPanel() {
+        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+        JLabel nameLabel = new JLabel("Guest Name:");
+        JTextField nameField = new JTextField();
+        JLabel roomLabel = new JLabel("Room Number:");
+        JTextField roomField = new JTextField();
+        JLabel inLabel = new JLabel("Check In (dd/MM/yyyy):");
+        JTextField inField = new JTextField();
+        JLabel outLabel = new JLabel("Check Out (dd/MM/yyyy):");
+        JTextField outField = new JTextField();
+        JButton btn = new JButton("Create Booking");
+        panel.add(nameLabel); panel.add(nameField);
+        panel.add(roomLabel); panel.add(roomField);
+        panel.add(inLabel); panel.add(inField);
+        panel.add(outLabel); panel.add(outField);
+        panel.add(new JLabel()); panel.add(btn);
+        btn.addActionListener(e -> {
+            String name = nameField.getText().trim();
+            String roomStr = roomField.getText().trim();
+            String checkIn = inField.getText().trim();
+            String checkOut = outField.getText().trim();
+            if (name.isEmpty() || roomStr.isEmpty() || checkIn.isEmpty() || checkOut.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (name.length() > 75) {
+                JOptionPane.showMessageDialog(this, "Guest name cannot exceed 75 characters.", "Invalid Input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int roomNum;
+            try {
+                roomNum = Integer.parseInt(roomStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Room number must be a valid integer.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            try {
+                LocalDate.parse(checkIn, fmt);
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(this, "Check-in date is not valid.\nPlease use dd/MM/yyyy (e.g. 12/06/2025).", "Invalid Date", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            try {
+                LocalDate.parse(checkOut, fmt);
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(this, "Check-out date is not valid.\nPlease use dd/MM/yyyy (e.g. 15/06/2025).", "Invalid Date", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            try {
+                hotelSystem.createBooking(name, roomNum, checkIn, checkOut);
+                JOptionPane.showMessageDialog(this, "Booking created successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IllegalArgumentException | SQLException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return panel;
+    }
+        private JPanel createViewBookingsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        JScrollPane scroll = new JScrollPane(textArea);
+        JButton btn = new JButton("Refresh");
+        panel.add(scroll, BorderLayout.CENTER);
+        panel.add(btn, BorderLayout.SOUTH);
+        btn.addActionListener(e -> {
+            try {
+                ArrayList<Booking> bookings = hotelSystem.viewBookings();
+                textArea.setText("");
+                if (bookings.isEmpty()) {
+                    textArea.setText("No bookings found.");
+                } else {
+                    for (Booking b : bookings) textArea.append(b.toString() + "\n");
                 }
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
