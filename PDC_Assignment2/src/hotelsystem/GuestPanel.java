@@ -35,9 +35,13 @@ public class GuestPanel extends JFrame {
 
         JLabel titleLabel = new JLabel("Guest Request Form Menu", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
+
 
         JPanel jpanel = new JPanel(new GridLayout(5, 2, 10, 10));
-        jpanel.setBackground(new Color(176, 216, 216));
+        jpanel.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
+
+        jpanel.setBackground(new Color(197, 215, 217));
         JLabel nameLabel = new JLabel("Enter Full Name (e.g Rob Mallen)");
         guestName = new JTextField(50);
         JLabel typeLabel = new JLabel("Pick Room type");
@@ -49,20 +53,20 @@ public class GuestPanel extends JFrame {
         JLabel checkOutLabel = new JLabel("Enter check out date (e.g 12/07/2001)");
         checkOut = new JTextField(20);
         JButton submit = new JButton("Check Price & Submit");
-        submit.setBackground(new Color(102, 178, 178));
+       
         submit.setPreferredSize(new Dimension(0, 45));
         submit.setOpaque(true);
-
+        
         submit.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                submit.setBackground(new Color(0, 100, 100));
-                submit.setForeground(new Color(200, 255, 255));
+                submit.setBackground(new Color(200, 200, 200));
+                submit.setForeground(Color.BLACK);
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                submit.setBackground(new Color(102, 178, 178));
+                submit.setBackground((null));
                 submit.setForeground(Color.BLACK);
             }
         });
@@ -90,7 +94,6 @@ public class GuestPanel extends JFrame {
                 guestInput();
             }
         });
-
     }
 
     private void guestInput() {

@@ -10,8 +10,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.*;
 
-
-
 /**
  *
  
@@ -37,6 +35,9 @@ public class AdminPanel extends JFrame {
 
         JLabel titleLabel = new JLabel("Admin Hotel Management", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
+
+
         JPanel topDropDownPanel = new JPanel(new FlowLayout());
         adminCategoryChoice = new JComboBox<>(new String[]{"Room Management", "Booking Management", "Booking Request Management"});
         adminActionChoice = new JComboBox<>();
@@ -63,6 +64,10 @@ public class AdminPanel extends JFrame {
         topDropDownPanel.add(adminActionChoice);
         northPanel.add(titleLabel, BorderLayout.NORTH);
         northPanel.add(topDropDownPanel, BorderLayout.SOUTH);
+        
+        midPanel.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
+        topDropDownPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        topDropDownPanel.setBackground(new Color(197, 215, 217));
 
         add(northPanel, BorderLayout.NORTH);
         add(midPanel, BorderLayout.CENTER);
