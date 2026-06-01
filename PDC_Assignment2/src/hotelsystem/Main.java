@@ -8,7 +8,6 @@ import java.sql.*;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-
 /**
  *
  * @author Cameron
@@ -22,10 +21,10 @@ public class Main {
             HotelSystem hotelSystem = new HotelSystem();
             MainFrame mfe = new MainFrame(hotelSystem);
             mfe.setVisible(true);
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Database connection has failed: " + ex.getMessage());
+        } catch (NullPointerException | SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Database connection has failed:\nPlease make sure only one instance is running", "Connection Error", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Failed to set look and feel: " + ex.getMessage());
+            System.err.println("Error: Default Look and Feel fall back used");
         }
     }
 }

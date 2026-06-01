@@ -15,15 +15,15 @@ import java.sql.*;
  * @author Cameron
  */
 public class HotelSystem {
-    
+
     private Connection conn;
     private RoomDAO roomDAO;
     private BookingDAO bookingDAO;
     private BookingRequestDAO bookingRequestDAO;
-    
+
     private String adminPassword;
     private int idCounter;
-    
+
     public HotelSystem() throws SQLException {
         DatabaseManager dbm = DatabaseManager.getDataBaseManagerInstance();
         this.conn = dbm.getConnection();
@@ -62,18 +62,18 @@ public class HotelSystem {
             roomDAO.addRoom(new Room(105, RoomType.DOUBLE, 2));
             roomDAO.addRoom(new Room(106, RoomType.SUITE, 4));
         }
-        
+
     }
 
     //Check if password is correct. Boolean value to check this
     public boolean verifyPassword(String password) {
         return this.adminPassword.equals(password);
     }
-    
+
     public int getIdCounter() {
         return idCounter;
     }
-    
+
     public void setIdCounter(int count) {
         this.idCounter = count;
     }
@@ -87,7 +87,7 @@ public class HotelSystem {
         LocalDate inDate = LocalDate.parse(checkIn, formatter);
         LocalDate outDate = LocalDate.parse(checkOut, formatter);
         long duration = ChronoUnit.DAYS.between(inDate, outDate);
-        
+
         double price;
         switch (type) {
             case SINGLE:
@@ -184,7 +184,7 @@ public class HotelSystem {
         }
         bookingDAO.cancelBooking(id);
         roomDAO.updateRoomStatus(booking.getRoomNumber(), RoomStatus.AVAILABLE);
-        
+
     }
 
     //Finds the booking by its ID in BOOKINGS table
@@ -231,11 +231,11 @@ public class HotelSystem {
         if (outDate.isBefore(inDate) || outDate.isEqual(inDate)) {
             throw new IllegalArgumentException("Error: Check out date must be after Check in date");
         }
-        
+
         double totalPrice = calculatePrice(checkIn, checkOut, room.getRoomType());
         Booking b = new Booking(idCounter, name, roomNumber, checkIn, checkOut, totalPrice);
         idCounter++;
-        
+
         bookingDAO.addBooking(b);
         roomDAO.updateRoomStatus(roomNumber, RoomStatus.OCCUPIED);
     }
@@ -262,9 +262,9 @@ public class HotelSystem {
     //If found sets status to OCCUPIED
     //Creates a new booknig with unique id, adds it to the BOOKINGS table, deletes the request from the REQUESTS table
     public void approveRequest(int id) throws SQLException {
-        
+
         BookingRequest request = bookingRequestDAO.findRequest(id);
-        
+
         if (request == null) {
             throw new IllegalArgumentException("Error: Request " + id + " not found.");
         }
@@ -278,7 +278,7 @@ public class HotelSystem {
         if (room == null) {
             throw new IllegalArgumentException("Error: No available room of type " + request.getRoomType() + " found.");
         }
-        
+
         Booking booking = new Booking(idCounter, request.getGuestName(), room.getRoomNumber(),
                 request.getCheckIn(), request.getCheckOut(), request.getTotalPrice());
         idCounter++;
@@ -297,10 +297,10 @@ public class HotelSystem {
         }
         bookingRequestDAO.deleteRequest(id);
     }
-    
+
     //Finds booking request by its id, if unfound returns null
-    public BookingRequest findRequest(int id) throws SQLException{
+    public BookingRequest findRequest(int id) throws SQLException {
         return bookingRequestDAO.findRequest(id);
     }
-    
+
 }
