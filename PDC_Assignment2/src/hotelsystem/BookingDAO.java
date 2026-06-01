@@ -78,8 +78,27 @@ public class BookingDAO {
                         rs.getString("CHECKOUT"),
                         rs.getDouble("TOTALPRICE")
                 ));
-            }          }
+            }
+        }
         return bookings;
     }
 
+    //Returns the current bookings from the  BOOKINGS table and stores them inside ArrayList as booking objects
+    public ArrayList<Booking> getCurrentBookings() throws SQLException {
+        ArrayList<Booking> bookings;
+        try (PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM BOOKINGS WHERE ROOMNUMBER IN (SELECT ROOMNUMBER FROM ROOMS WHERE STATUS = 'OCCUPIED')"); ResultSet rs = pstmt.executeQuery()) {
+            bookings = new ArrayList<>();
+            while (rs.next()) {
+                bookings.add(new Booking(
+                        rs.getInt("BOOKINGID"),
+                        rs.getString("GUESTNAME"),
+                        rs.getInt("ROOMNUMBER"),
+                        rs.getString("CHECKIN"),
+                        rs.getString("CHECKOUT"),
+                        rs.getDouble("TOTALPRICE")
+                ));
+            }
+        }
+        return bookings;
+    }
 }

@@ -50,6 +50,7 @@ public class AdminPanel extends JFrame {
         midPanel.add(createAvailableRoomsPanel(), "AVAILABLE_ROOMS");
         midPanel.add(createDecommissionedRoomsPanel(), "DECOMMISSIONED_ROOMS");
         midPanel.add(createViewBookingsPanel(), "VIEW_BOOKINGS");
+        midPanel.add(createViewCurrentBookingsPanel(), "CURRENT_BOOKINGS");
         midPanel.add(createFindBookingPanel(), "FIND_BOOKING");
         midPanel.add(createCancelBookingPanel(), "CANCEL_BOOKING");
         midPanel.add(createCheckOutPanel(), "CHECKOUT_BOOKING");
@@ -101,7 +102,8 @@ public class AdminPanel extends JFrame {
             adminActionChoice.addItem("View Available Rooms");
             adminActionChoice.addItem("View Decommissioned Rooms");
         } else if (categoryChoice == 1) {
-            adminActionChoice.addItem("View Bookings");
+            adminActionChoice.addItem("View All Bookings");
+            adminActionChoice.addItem("View Current Bookings");
             adminActionChoice.addItem("Find Booking");
             adminActionChoice.addItem("Cancel Booking");
             adminActionChoice.addItem("Check Out");
@@ -136,12 +138,14 @@ public class AdminPanel extends JFrame {
             if (actionChoice == 0) {
                 cardLayout.show(midPanel, "VIEW_BOOKINGS");
             } else if (actionChoice == 1) {
-                cardLayout.show(midPanel, "FIND_BOOKING");
+                cardLayout.show(midPanel, "CURRENT_BOOKINGS");
             } else if (actionChoice == 2) {
-                cardLayout.show(midPanel, "CANCEL_BOOKING");
+                cardLayout.show(midPanel, "FIND_BOOKING");
             } else if (actionChoice == 3) {
-                cardLayout.show(midPanel, "CHECKOUT_BOOKING");
+                cardLayout.show(midPanel, "CANCEL_BOOKING");
             } else if (actionChoice == 4) {
+                cardLayout.show(midPanel, "CHECKOUT_BOOKING");
+            } else if (actionChoice == 5) {
                 cardLayout.show(midPanel, "CREATE_BOOKING");
             }
 
@@ -580,6 +584,33 @@ public class AdminPanel extends JFrame {
                 textArea.setText("");
                 if (bookings.isEmpty()) {
                     textArea.setText("No bookings found.");
+                } else {
+                    for (Booking b : bookings) {
+                        textArea.append(b.toString() + "\n");
+                    }
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        btn.doClick();
+        return panel;
+    }
+
+    private JPanel createViewCurrentBookingsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        JScrollPane scroll = new JScrollPane(textArea);
+        JButton btn = new JButton("Refresh");
+        panel.add(scroll, BorderLayout.CENTER);
+        panel.add(btn, BorderLayout.SOUTH);
+        btn.addActionListener(e -> {
+            try {
+                ArrayList<Booking> bookings = hotelSystem.currentBookings();
+                textArea.setText("");
+                if (bookings.isEmpty()) {
+                    textArea.setText("No current bookings found.");
                 } else {
                     for (Booking b : bookings) {
                         textArea.append(b.toString() + "\n");

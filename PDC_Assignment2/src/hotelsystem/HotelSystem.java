@@ -169,6 +169,11 @@ public class HotelSystem {
         return bookingDAO.getAllBookings();
     }
 
+    //returns the current bookings from the BOOKING table
+    public ArrayList<Booking> currentBookings() throws SQLException {
+        return bookingDAO.getCurrentBookings();
+    }
+
     //loops through BOOKING table and uses getBookingID to check if there are any id matches
     public Booking findBooking(int id) throws SQLException {
         return bookingDAO.findBooking(id);
