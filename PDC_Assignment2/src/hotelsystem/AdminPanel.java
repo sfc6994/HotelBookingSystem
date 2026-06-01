@@ -7,7 +7,6 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.*;
 
 /**
@@ -53,6 +52,7 @@ public class AdminPanel extends JFrame {
         midPanel.add(createViewCurrentBookingsPanel(), "CURRENT_BOOKINGS");
         midPanel.add(createFindBookingPanel(), "FIND_BOOKING");
         midPanel.add(createCancelBookingPanel(), "CANCEL_BOOKING");
+        midPanel.add(createCheckInPanel(), "CHECKIN_BOOKING");
         midPanel.add(createCheckOutPanel(), "CHECKOUT_BOOKING");
         midPanel.add(createBookingPanel(), "CREATE_BOOKING");
         midPanel.add(createViewRequestsPanel(), "VIEW_REQUESTS");
@@ -106,6 +106,7 @@ public class AdminPanel extends JFrame {
             adminActionChoice.addItem("View Current Bookings");
             adminActionChoice.addItem("Find Booking");
             adminActionChoice.addItem("Cancel Booking");
+            adminActionChoice.addItem("Check In");
             adminActionChoice.addItem("Check Out");
             adminActionChoice.addItem("Create Booking");
         } else if (categoryChoice == 2) {
@@ -144,8 +145,10 @@ public class AdminPanel extends JFrame {
             } else if (actionChoice == 3) {
                 cardLayout.show(midPanel, "CANCEL_BOOKING");
             } else if (actionChoice == 4) {
-                cardLayout.show(midPanel, "CHECKOUT_BOOKING");
+                cardLayout.show(midPanel, "CHECKIN_BOOKING");
             } else if (actionChoice == 5) {
+                cardLayout.show(midPanel, "CHECKOUT_BOOKING");
+            } else if (actionChoice == 6) {
                 cardLayout.show(midPanel, "CREATE_BOOKING");
             }
 
@@ -258,40 +261,42 @@ public class AdminPanel extends JFrame {
 
             int roomNum;
             int capacity;
+
             try {
-
                 roomNum = Integer.parseInt(roomStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Room number must be a valid number", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
                 capacity = Integer.parseInt(capStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Capacity must be a valid number.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-                if (roomNum > 10000) {
-                    JOptionPane.showMessageDialog(this, "Room number must be lower than 10,000", "Invalid input", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
+            if (roomNum > 10000) {
+                JOptionPane.showMessageDialog(this, "Room number must be lower than 10,000", "Invalid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-                if (roomNum <= 0) {
-                    JOptionPane.showMessageDialog(this, "Room number must be greater than 0", "Invalid input", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
+            if (roomNum <= 0) {
+                JOptionPane.showMessageDialog(this, "Room number must be greater than 0", "Invalid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-                try {
-                    roomNum = Integer.parseInt(capStr);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Room number must be a valid number", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+            if (capacity <= 0) {
+                JOptionPane.showMessageDialog(this, "Capacity must be greater than 0", "Invalid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-                if (capacity <= 0) {
-                    JOptionPane.showMessageDialog(this, "Capacity must be greater than 0", "Invalid input", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
+            int confirm = JOptionPane.showConfirmDialog(this, "Room " + roomNum + " cannot be deleted once confirmed. Are you sure?", "Confirm Room", JOptionPane.YES_NO_OPTION);
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
 
-                try {
-                    capacity = Integer.parseInt(capStr);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "Capacity must be a valid number.", "Invalid Input", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
+            try {
                 RoomType type = (RoomType) typeBox.getSelectedItem();
                 hotelSystem.addRoom(roomNum, type, capacity);
                 JOptionPane.showMessageDialog(this, "Room " + roomNum + " added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -477,6 +482,38 @@ public class AdminPanel extends JFrame {
             try {
                 hotelSystem.checkOut(id);
                 JOptionPane.showMessageDialog(this, "Booking " + id + " checked out successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IllegalArgumentException | SQLException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        return panel;
+    }
+
+    private JPanel createCheckInPanel() {
+        JPanel panel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JLabel idLabel = new JLabel("Enter Booking ID to Check In:");
+        JTextField idField = new JTextField();
+        JButton btn = new JButton("Check In");
+        panel.add(idLabel);
+        panel.add(idField);
+        panel.add(new JLabel());
+        panel.add(btn);
+        btn.addActionListener(e -> {
+            String idStr = idField.getText().trim();
+            if (idStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter a booking ID.", "Missing Field", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int id;
+            try {
+                id = Integer.parseInt(idStr);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Booking ID must be a valid number.", "Please enter valid input", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            try {
+                hotelSystem.checkIn(id);
+                JOptionPane.showMessageDialog(this, "Booking " + id + " checked in successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (IllegalArgumentException | SQLException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
